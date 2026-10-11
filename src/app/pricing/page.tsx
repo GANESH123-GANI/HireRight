@@ -5,6 +5,8 @@ import { CheckCircle, Sparkles } from "lucide-react";
 import { PLAN_PRICES_USD, formatPrice } from "@/lib/pricing";
 import { useCurrency } from "@/lib/useCurrency";
 import CurrencySelector from "@/components/CurrencySelector";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 
 const PLANS = [
   {
@@ -60,58 +62,63 @@ export default function PricingPage() {
   const { currency } = useCurrency();
 
   return (
-    <div className="min-h-screen bg-[#09090b]">
-      <div className="max-w-6xl mx-auto px-4 py-20">
+    <div className="min-h-screen bg-[#FFF9F5] flex flex-col justify-between">
+      <Navbar />
+      <div className="max-w-6xl mx-auto px-4 pt-32 pb-20 flex-1 w-full">
         <div className="text-center mb-16">
-          <h1 className="text-4xl md:text-5xl font-bold text-[#fafafa] mb-4">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#FCE8DD] text-[#D97757] text-xs font-semibold uppercase tracking-wider mb-4">
+            <Sparkles className="w-3.5 h-3.5" />
+            Flexible Investment
+          </div>
+          <h1 className="text-4xl md:text-5xl font-bold text-[#382A25] mb-4 tracking-tight">
             Simple, Transparent Pricing
           </h1>
-          <p className="text-[#a1a1aa] text-lg max-w-2xl mx-auto">
+          <p className="text-[#81736C] text-lg max-w-2xl mx-auto">
             Start free, upgrade when you need more interviews. No hidden fees, cancel anytime.
           </p>
           <div className="mt-6 flex justify-center">
-            <CurrencySelector className="bg-[#18181b] border border-[#27272a] px-2 py-1 rounded-lg" />
+            <CurrencySelector className="bg-white border border-[#EFE3DB] text-[#382A25] px-3 py-1.5 rounded-xl shadow-xs" />
           </div>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-6">
+        <div className="grid md:grid-cols-3 gap-8 items-stretch">
           {PLANS.map((plan) => (
             <div
               key={plan.id}
-              className={`p-8 flex flex-col rounded-xl ${
+              className={`p-8 flex flex-col rounded-2xl transition-all duration-300 ${
                 plan.highlighted
-                  ? "bg-[#18181b] border-2 border-[#a78bfa] scale-105"
-                  : "bg-[#18181b] border border-[#27272a]"
+                  ? "bg-white border-2 border-[#D97757] md:-translate-y-2 shadow-xl shadow-[#D97757]/10 ring-4 ring-[#FCE8DD]/50"
+                  : "bg-white border border-[#EFE3DB] shadow-sm hover:border-[#D97757]/50 hover:shadow-md"
               }`}
             >
               {plan.highlighted && (
-                <div className="flex items-center gap-1 text-[#a78bfa] text-xs font-semibold mb-2">
-                  <Sparkles className="w-4 h-4" />
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FCE8DD] text-[#D97757] text-xs font-bold mb-4 w-fit border border-[#D97757]/20">
+                  <Sparkles className="w-3.5 h-3.5" />
                   Most Popular
                 </div>
               )}
-              <h2 className="text-xl font-bold text-[#fafafa] mb-1">{plan.name}</h2>
-              <p className="text-sm text-[#a1a1aa] mb-4">{plan.description}</p>
-              <div className="mb-6">
-                <span className="text-4xl font-bold text-[#fafafa]">
+              <h2 className="text-2xl font-bold text-[#382A25] mb-1">{plan.name}</h2>
+              <p className="text-sm text-[#81736C] mb-6">{plan.description}</p>
+              <div className="mb-6 pb-6 border-b border-[#EFE3DB]">
+                <span className="text-4xl font-extrabold text-[#382A25]">
                   {formatPrice(PLAN_PRICES_USD[plan.id].monthly, currency)}
                 </span>
-                <span className="text-[#a1a1aa]"> {plan.period}</span>
+                <span className="text-[#81736C] font-medium"> {plan.period}</span>
               </div>
-              <ul className="space-y-2.5 mb-8 flex-1">
+              <ul className="space-y-3 mb-8 flex-1">
                 {plan.features.map((feature) => (
-                  <li key={feature} className="flex items-start gap-2 text-sm text-[#a1a1aa]">
-                    <CheckCircle className="w-5 h-5 text-[#22c55e] flex-shrink-0 mt-0.5" />
-                    {feature}
+                  <li key={feature} className="flex items-start gap-2.5 text-sm text-[#382A25]">
+                    <CheckCircle className="w-4 h-4 text-[#15803D] flex-shrink-0 mt-0.5" />
+                    <span>{feature}</span>
                   </li>
                 ))}
               </ul>
               <Link
                 href={plan.href}
-                className={`text-center py-3 font-medium transition-colors text-sm rounded-lg ${
+                className={`text-center py-3.5 font-semibold transition-all text-sm rounded-xl ${
                   plan.highlighted
-                    ? "bg-[#a78bfa] text-white hover:bg-[#8b5cf6]"
-                    : "border border-[#27272a] text-[#a1a1aa] hover:bg-[#27272a]"
+                    ? "bg-[#D97757] hover:bg-[#B95F42] text-white shadow-md hover:shadow-lg shadow-[#D97757]/20"
+                    : "border border-[#EFE3DB] bg-white text-[#382A25] hover:bg-[#FCE8DD]/40 hover:border-[#D97757]"
                 }`}
               >
                 {plan.cta}
@@ -120,13 +127,14 @@ export default function PricingPage() {
           ))}
         </div>
 
-        <p className="text-center text-[#a1a1aa] text-sm mt-10">
+        <p className="text-center text-[#81736C] text-sm mt-12">
           Questions? Reach out at{" "}
-          <a href="mailto:support@hireright.com" className="text-[#f5c542] underline">
+          <a href="mailto:support@hireright.com" className="text-[#D97757] font-semibold hover:underline">
             support@hireright.com
           </a>
         </p>
       </div>
+      <Footer />
     </div>
   );
 }

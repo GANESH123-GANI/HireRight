@@ -22,6 +22,8 @@ export function isPaidPlan(plan: string): boolean {
 // A subscription is usable unless it is explicitly canceled/unpaid.
 export function isPlanActive(plan: string, planStatus: string | null): boolean {
   if (!isPaidPlan(plan)) return true;
+  if (planStatus === "canceled" || planStatus === "unpaid") return false;
+  if (plan === "enterprise" && (!planStatus || planStatus === "active")) return true;
   if (!planStatus) return false;
   return planStatus === "active" || planStatus === "trialing" || planStatus === "past_due";
 }

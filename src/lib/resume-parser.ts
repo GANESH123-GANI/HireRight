@@ -1,4 +1,4 @@
-import OpenAI from "openai";
+import { isGeminiConfigured, generateGeminiJson, generateGeminiVisionJson } from "@/lib/gemini";
 import pdfParse from "pdf-parse/lib/pdf-parse.js";
 import * as mammoth from "mammoth";
 import { fromPath } from "pdf2pic";
@@ -8,10 +8,6 @@ import * as os from "os";
 import type { ParsedResume, ParsedWorkExperience, ParsedProject } from "@/types/resume";
 
 export type { ParsedResume, ParsedWorkExperience, ParsedProject, ParsedEducation } from "@/types/resume";
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
 
 const RESUME_PARSING_PROMPT = `You are an expert resume parser. Extract ALL information from the resume provided.
 
@@ -675,84 +671,36 @@ async function convertPDFToImages(buffer: Buffer): Promise<string[]> {
 
 async function parseImageWithVision(base64Images: string[], fallbackText?: string): Promise<ParsedResume> {
   try {
-    if (!process.env.OPENAI_API_KEY) {
-      console.log("[resume-parser] OPENAI_API_KEY not set for Vision API, using fallback parser");
+    if (!isGeminiConfigured()) {
+      console.log("[resume-parser] GEMINI_API_KEY not set for Vision API, using fallback parser");
       return parseResumeFallback(fallbackText || "");
     }
-    console.log(`[resume-parser] Sending ${base64Images.length} images to GPT-4o Vision...`);
-    const content: OpenAI.Chat.Completions.ChatCompletionContentPart[] = [
-      { type: "text", text: RESUME_PARSING_PROMPT },
-    ];
+    console.log(`[resume-parser] Sending ${base64Images.length} images to Gemini Vision...`);
 
-    for (const base64 of base64Images) {
-      content.push({
-        type: "image_url",
-        image_url: { url: `data:image/png;base64,${base64}` },
-      });
-    }
+    const parsed = await generateGeminiVisionJson<Record<string, unknown>>(
+      base64Images,
+      RESUME_PARSING_PROMPT
+    );
 
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o",
-      messages: [{ role: "user", content }],
-      temperature: 0.1,
-      max_tokens: 8000,
-      response_format: { type: "json_object" },
-    });
-
-    const contentText = response.choices[0]?.message?.content;
-    console.log("[resume-parser] Vision API response received");
-    if (!contentText) {
-      console.error("[resume-parser] Vision API returned empty response");
-      return parseResumeFallback(fallbackText || "");
-    }
-
-    const jsonMatch = contentText.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) {
-      console.error("[resume-parser] No JSON found in Vision response");
-      return parseResumeFallback(fallbackText || "");
-    }
-
-    const parsed = JSON.parse(jsonMatch[0]) as Record<string, unknown>;
-    console.log("[resume-parser] Vision parsing successful:", JSON.stringify(parsed, null, 2).slice(0, 500));
+    console.log("[resume-parser] Gemini Vision parsing successful:", JSON.stringify(parsed, null, 2).slice(0, 500));
     return mapParsedResponse(parsed);
   } catch (error) {
-    console.error("[resume-parser] Vision parsing failed:", error instanceof Error ? error.message : error);
+    console.error("[resume-parser] Gemini Vision parsing failed:", error instanceof Error ? error.message : error);
     return parseResumeFallback(fallbackText || "");
   }
 }
 
 async function parseTextWithAI(text: string): Promise<ParsedResume> {
-  if (!process.env.OPENAI_API_KEY) {
-    console.log("[resume-parser] OPENAI_API_KEY not set, using text fallback");
+  if (!isGeminiConfigured()) {
+    console.log("[resume-parser] GEMINI_API_KEY not set, using text fallback");
     return parseResumeFallback(text);
   }
-  console.log(`[resume-parser] Sending ${text.length} chars to GPT-4o-mini...`);
-  const response = await openai.chat.completions.create({
-    model: "gpt-4o",
-    messages: [
-      { role: "system", content: RESUME_PARSING_PROMPT },
-      { role: "user", content: `Parse this resume:\n\n${text.slice(0, 30000)}` },
-    ],
-    temperature: 0.1,
-    max_tokens: 8000,
-    response_format: { type: "json_object" },
-  });
+  console.log(`[resume-parser] Sending ${text.length} chars to Gemini API...`);
 
-  const content = response.choices[0]?.message?.content;
-  console.log("[resume-parser] Text AI response received");
-  if (!content) {
-    console.error("[resume-parser] Text AI returned empty response");
-    throw new Error("OpenAI returned empty response");
-  }
+  const prompt = `${RESUME_PARSING_PROMPT}\n\nParse this resume:\n\n${text.slice(0, 40000)}`;
+  const parsed = await generateGeminiJson<Record<string, unknown>>(prompt);
 
-  const jsonMatch = content.match(/\{[\s\S]*\}/);
-  if (!jsonMatch) {
-    console.error("[resume-parser] No JSON found in text AI response");
-    throw new Error("No JSON in OpenAI response");
-  }
-
-  const parsed = JSON.parse(jsonMatch[0]) as Record<string, unknown>;
-  console.log("[resume-parser] Text AI parsing successful:", JSON.stringify(parsed, null, 2).slice(0, 500));
+  console.log("[resume-parser] Gemini Text AI parsing successful:", JSON.stringify(parsed, null, 2).slice(0, 500));
   return mapParsedResponse(parsed);
 }
 

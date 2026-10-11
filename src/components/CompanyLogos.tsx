@@ -17,29 +17,29 @@ const companies = [
 
 export default function CompanyLogos() {
   return (
-    <section className="py-20 bg-background relative border-y border-border">
+    <section className="py-20 bg-background relative border-y border-border overflow-hidden w-full">
       {/* Background */}
       <div className="absolute inset-0 bg-grid-pattern opacity-10" />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative w-full overflow-hidden">
         {/* Header */}
         <div className="text-center mb-12">
-          <p className="text-sm text-muted-foreground font-medium tracking-wide uppercase">
-            Powering hiring decisions at
+          <p className="text-xs sm:text-sm text-muted-foreground font-semibold tracking-wider uppercase">
+            Autonomous AI screening &amp; interviews trusted by
           </p>
           <p className="text-2xl font-bold text-foreground mt-2">
-            1,200+ leading enterprises
+            1,200+ global enterprises &amp; engineering leaders
           </p>
         </div>
 
         {/* Marquee container */}
-        <div className="relative">
+        <div className="relative overflow-hidden w-full">
           {/* Fade edges */}
-          <div className="absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-background to-transparent z-10 pointer-events-none" />
-          <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none" />
+          <div className="absolute left-0 top-0 bottom-0 w-24 sm:w-32 bg-gradient-to-r from-background to-transparent z-10 pointer-events-none" />
+          <div className="absolute right-0 top-0 bottom-0 w-24 sm:w-32 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none" />
 
           {/* Scrolling track */}
-          <div className="flex animate-marquee">
+          <div className="flex w-max animate-marquee">
             {/* Duplicate for seamless loop */}
             {[...companies, ...companies].map((company, i) => (
               <div

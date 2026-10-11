@@ -1,11 +1,8 @@
 import { NextResponse } from "next/server";
 import { getActiveUser } from "@/lib/authorization";
 import { prisma } from "@/lib/prisma";
-import OpenAI from "openai";
-import { trackedChatCompletion } from "@/lib/openai-usage";
+import { generateGeminiContent } from "@/lib/gemini";
 import { rateLimit, rateLimitByIp } from "@/lib/rateLimit";
-
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 export async function POST(request: Request) {
   try {
@@ -82,25 +79,13 @@ Rules:
 - Do NOT use bullet points — write as a paragraph
 - Do NOT include a greeting or sign-off`;
 
-    const completion = await trackedChatCompletion(
-      () => openai.chat.completions.create({
-        model: "gpt-3.5-turbo",
-        messages: [
-          { role: "system", content: "You are a professional resume writer specializing in tech industry profiles." },
-          { role: "user", content: prompt },
-        ],
-        temperature: 0.7,
-        max_tokens: 300,
-      }),
-      {
-        model: "gpt-3.5-turbo",
-        endpoint: "ai/generate-summary",
-        userId: user.id,
-        organizationId: user.organizationId,
-      }
-    );
+    const summary = await generateGeminiContent({
+      contents: prompt,
+      systemInstruction: "You are a professional resume writer specializing in tech industry profiles.",
+      temperature: 0.7,
+      maxOutputTokens: 300,
+    });
 
-    const summary = completion.choices[0]?.message?.content?.trim();
     if (!summary) {
       return NextResponse.json({ error: "Failed to generate summary" }, { status: 500 });
     }
@@ -108,12 +93,6 @@ Rules:
     return NextResponse.json({ success: true, summary });
   } catch (error) {
     console.error("Generate summary error:", error);
-    if (error instanceof OpenAI.APIError) {
-      return NextResponse.json(
-        { error: "AI service temporarily unavailable. Please try again." },
-        { status: 503 }
-      );
-    }
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json({ error: error instanceof Error ? error.message : "AI service temporarily unavailable. Please try again." }, { status: 500 });
   }
 }

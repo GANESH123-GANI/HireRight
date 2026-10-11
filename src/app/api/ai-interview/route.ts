@@ -1,14 +1,11 @@
 import { NextResponse } from "next/server";
-import OpenAI from "openai";
 import { getInterviewUser } from "@/lib/authorization";
 import { rateLimitByIp, rateLimit } from "@/lib/rateLimit";
 import { trackedChatCompletion } from "@/lib/openai-usage";
 import { prisma } from "@/lib/prisma";
 import { validateProctoringReport } from "@/lib/proctor-server";
+import { geminiChatCompletion } from "@/lib/gemini";
 
-function getOpenAI() {
-  return new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-}
 
 interface Message {
   role: "system" | "user" | "assistant";
@@ -400,7 +397,7 @@ INTERVIEW PHASES — include a hidden marker:
 Start with a brief intro, mention anti-cheating monitoring, then ask question 1 (warmup, easy).`;
 
       const completion = await trackedChatCompletion(
-        () => getOpenAI().chat.completions.create({
+        () => geminiChatCompletion({
           model: "gpt-5-nano",
           messages: [
             { role: "system", content: systemPrompt },
@@ -574,7 +571,7 @@ ${INJECTION_GUARD}`;
       ];
 
       const completion = await trackedChatCompletion(
-        () => getOpenAI().chat.completions.create({
+        () => geminiChatCompletion({
           model: "gpt-5-nano",
           messages,
           max_completion_tokens: 1000,
@@ -714,7 +711,7 @@ ${INJECTION_GUARD}`;
 
       try {
         const codingCompletion = await trackedChatCompletion(
-          () => getOpenAI().chat.completions.create({
+          () => geminiChatCompletion({
             model: "gpt-5-nano",
             messages: [
               { role: "system", content: "You are a coding challenge generator. Return valid JSON only, no markdown." },
@@ -789,7 +786,7 @@ Provide brief feedback (3-4 sentences) on code quality, correctness, and suggest
 
       try {
         const evalCompletion = await trackedChatCompletion(
-          () => getOpenAI().chat.completions.create({
+          () => geminiChatCompletion({
             model: "gpt-5-nano",
             messages: [
               { role: "system", content: "You are a code reviewer. Provide concise, actionable feedback." },
@@ -939,7 +936,7 @@ Provide:
 Format as JSON: {score, strengths, weaknesses, areasForImprovement, topicsToLearn, recommendation, integrity, questionScores}`;
 
     const completion = await trackedChatCompletion(
-      () => getOpenAI().chat.completions.create({
+      () => geminiChatCompletion({
         model: "gpt-5-nano",
         messages: [
           { role: "system", content: "You are an interview evaluator. Return valid JSON only." },

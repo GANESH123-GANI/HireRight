@@ -1,5 +1,5 @@
 import {
-  MessageSquare, Video, Mic, Send, Wifi, WifiOff, ArrowRight, Loader, ShieldCheck, Calendar,
+  MessageSquare, Video, Mic, Send, Wifi, WifiOff, ArrowRight, Loader, ShieldCheck, Calendar, Flag,
 } from "lucide-react";
 import type { ChatPanelProps } from "./types";
 
@@ -29,151 +29,145 @@ export default function ChatPanel({
   messagesEndRef,
 }: ChatPanelProps) {
   return (
-    <div className="flex-1 p-4 flex flex-col">
-      <div className="bg-gray-800 rounded-xl flex-1 flex flex-col overflow-hidden">
-        <div className="px-4 py-3 border-b border-gray-700 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <MessageSquare className="w-5 h-5 text-indigo-400" />
-            <span className="text-white font-medium">Interview Chat</span>
+    <div className="w-[320px] lg:w-[340px] xl:w-[360px] shrink-0 h-full flex flex-col min-h-0">
+      <div className="bg-[#1A1412] rounded-2xl flex-1 h-full min-h-0 flex flex-col overflow-hidden shadow-2xl shadow-black/50">
+        {/* Header */}
+        <div className="px-4 py-3.5 flex items-center justify-between bg-[#15100E] shrink-0">
+          <div className="flex items-center gap-2.5">
+            <MessageSquare className="w-4 h-4 text-[#D97757]" />
+            <span className="text-[#FFF9F5] text-sm font-bold tracking-tight">Interview Chat</span>
           </div>
-          <span className="text-gray-400 text-sm">{messages.length} messages</span>
+          <span className="text-[#A89890] text-xs font-mono">{messages.length} messages</span>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        {/* Content Body */}
+        <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-3.5">
           {!interviewStarted ? (
-            <div className="flex items-center justify-center h-full">
-              <div className="text-center">
-                <div className="w-16 h-16 bg-indigo-600/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Video className="w-8 h-8 text-indigo-400" />
+            <div className="space-y-3">
+              {/* Stepper Card 1: Setup Guidance */}
+              <div className="bg-[#241C17] rounded-xl p-3.5 text-left transition-all hover:bg-[#2C221D] shadow-sm">
+                <div className="flex items-start gap-2.5">
+                  <div className="w-7 h-7 rounded-lg bg-[#D97757]/15 text-[#D97757] flex items-center justify-center shrink-0 mt-0.5">
+                    <Flag className="w-3.5 h-3.5" />
+                  </div>
+                  <div>
+                    <h4 className="text-xs font-bold text-[#FFF9F5] mb-1">Ready to Start?</h4>
+                    <p className="text-[11px] text-[#C4B5AE] leading-relaxed">
+                      Check your lighting and position your face in the front camera field. You can speak or type your answers anytime.
+                    </p>
+                  </div>
                 </div>
-                <h3 className="text-xl font-semibold text-white mb-2">Ready to Start?</h3>
-                <p className="text-gray-400 mb-6 max-w-md">
-                  {noCamera
-                    ? "The AI interviewer will ask questions out loud and you answer by speaking. Your voice is recorded for the evaluator to review."
-                    : "The AI interviewer will ask questions out loud and you answer by speaking. Your camera and voice are recorded for the evaluator to review."}
-                </p>
-                {!noCamera && (
-                  <div className={`mb-4 text-xs rounded-lg p-3 flex items-start gap-2 text-left ${
-                    proctorStatus.state === "ok" || proctorStatus.state === "violating"
-                      ? "bg-emerald-500/10 border border-emerald-500/30 text-emerald-300"
-                      : proctorLoading
-                      ? "bg-amber-500/10 border border-amber-500/30 text-amber-300"
-                      : "bg-gray-700/40 border border-gray-600/40 text-gray-400"
-                  }`}>
-                    <ShieldCheck className="w-4 h-4 mt-0.5 flex-shrink-0" />
-                    <span>
-                      <strong>Anti-cheating monitoring is {proctorStatus.state === "off" && !proctorLoading ? "not available" : "active"}:</strong>{" "}
-                      keep looking at the camera. Turning your head, looking away, or hiding your face is flagged as malpractice and appears in your evaluation.
-                    </span>
-                  </div>
-                )}
-                {startError && startError === "__NO_INTERVIEW__" ? (
-                  <div className="bg-amber-500/10 border border-amber-500/30 text-amber-300 text-sm rounded-lg p-4 mb-4 text-center">
-                    <Calendar className="w-6 h-6 mx-auto mb-2 text-amber-400" />
-                    <p className="font-medium mb-1">No interview scheduled</p>
-                    <p className="text-amber-400/70 text-xs mb-3">You need to schedule an interview before you can start.</p>
-                    <a
-                      href="/interview"
-                      className="inline-flex items-center gap-2 px-4 py-2 bg-amber-500 text-black rounded-lg font-medium text-sm hover:bg-amber-400 transition-colors"
-                    >
-                      Schedule Interview <ArrowRight className="w-4 h-4" />
-                    </a>
-                  </div>
-                ) : startError ? (
-                  <div className="bg-red-500/10 border border-red-500/30 text-red-400 text-sm rounded-lg p-3 mb-4">
-                    {startError}
-                  </div>
-                ) : null}
-                {liveKitError && (
-                  <div className="bg-yellow-500/10 border border-yellow-500/30 text-yellow-400 text-sm rounded-lg p-3 mb-4 flex items-start gap-2">
-                    <WifiOff className="w-4 h-4 mt-0.5 flex-shrink-0" />
-                    <span>{liveKitError}</span>
-                  </div>
-                )}
-
-                {liveKitAvailable && (
-                  <div className="space-y-3">
-                    <button
-                      onClick={startLiveKitInterview}
-                      disabled={liveKitLoading}
-                      className="w-full px-6 py-3 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 disabled:opacity-50 flex items-center justify-center gap-2"
-                    >
-                      {liveKitLoading ? (
-                        <><Loader className="animate-spin w-4 h-4" /> Connecting to AI agent...</>
-                      ) : (
-                        <><Wifi className="w-4 h-4" /> Start Voice Interview <ArrowRight className="w-4 h-4" /></>
-                      )}
-                    </button>
-                    <div className="flex items-center gap-2 text-xs text-gray-500 justify-center">
-                      <span className="w-2 h-2 bg-emerald-500 rounded-full" />
-                      Real-time voice with AI interviewer
-                    </div>
-                    <div className="relative my-2">
-                      <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-gray-700" /></div>
-                      <div className="relative flex justify-center text-xs"><span className="bg-gray-900 px-2 text-gray-500">or</span></div>
-                    </div>
-                  </div>
-                )}
-
-                <button
-                  onClick={startInterview}
-                  disabled={loading}
-                  className={`px-6 py-3 rounded-lg font-medium disabled:opacity-50 flex items-center gap-2 mx-auto ${
-                    liveKitAvailable
-                      ? "bg-gray-700 text-gray-300 hover:bg-gray-600 text-sm"
-                      : "bg-indigo-600 text-white hover:bg-indigo-700"
-                  }`}
-                >
-                  {loading ? (
-                    <><Loader className="animate-spin w-4 h-4" /> Connecting...</>
-                  ) : (
-                    <>Start Browser Interview <ArrowRight className="w-4 h-4" /></>
-                  )}
-                </button>
-                {!liveKitAvailable && !supportsSpeech && (
-                  <p className="text-yellow-500 text-sm mt-4">
-                    Voice input is not supported in this browser. You can type your answers instead.
-                  </p>
-                )}
               </div>
+
+              {/* Stepper Card 2: Interactive Interview Flow */}
+              <div className="bg-[#241C17] rounded-xl p-3.5 text-left transition-all hover:bg-[#2C221D] shadow-sm">
+                <div className="flex items-start gap-2.5">
+                  <div className="w-7 h-7 rounded-lg bg-[#D97757]/15 text-[#D97757] flex items-center justify-center shrink-0 mt-0.5">
+                    <Video className="w-3.5 h-3.5" />
+                  </div>
+                  <div>
+                    <h4 className="text-xs font-bold text-[#FFF9F5] mb-1">Interactive Voice & AI</h4>
+                    <p className="text-[11px] text-[#C4B5AE] leading-relaxed">
+                      {noCamera
+                        ? "The AI interviewer asks questions aloud and you respond naturally. Your voice is recorded and evaluated in real time."
+                        : "The AI interviewer will ask questions aloud and you answer naturally. Your camera and voice are evaluated in real time."}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Stepper Card 3: Anti-Cheating Monitoring Badge */}
+              {!noCamera && (
+                <div className={`rounded-xl p-3.5 text-left transition-all ${
+                  proctorStatus.state === "ok" || proctorStatus.state === "violating"
+                    ? "bg-emerald-950/40 text-emerald-300"
+                    : proctorLoading
+                    ? "bg-amber-950/40 text-amber-300"
+                    : "bg-[#241C17] text-[#C4B5AE]"
+                }`}>
+                  <div className="flex items-start gap-2.5">
+                    <div className="w-7 h-7 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0 mt-0.5">
+                      <ShieldCheck className="w-3.5 h-3.5" />
+                    </div>
+                    <div>
+                      <h4 className="text-xs font-bold text-[#FFF9F5] mb-1">
+                        Anti-cheating monitoring is active
+                      </h4>
+                      <p className="text-[11px] leading-relaxed text-[#C4B5AE]">
+                        Keep your focus on the screen. Turning away or hiding your face is flagged as malpractice and included in your report.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Error Notifications */}
+              {startError && startError === "__NO_INTERVIEW__" ? (
+                <div className="bg-amber-950/30 text-amber-300 text-xs rounded-xl p-3 text-center">
+                  <Calendar className="w-5 h-5 mx-auto mb-1 text-amber-400" />
+                  <p className="font-bold mb-1">No interview scheduled</p>
+                  <p className="text-amber-300/80 text-[11px] mb-2.5">Schedule a slot to start this session.</p>
+                  <a
+                    href="/interview"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#D97757] text-white rounded-lg font-semibold text-xs hover:bg-[#B95F42] transition-colors"
+                  >
+                    Schedule Interview <ArrowRight className="w-3.5 h-3.5" />
+                  </a>
+                </div>
+              ) : startError ? (
+                <div className="bg-red-950/40 text-red-400 text-xs rounded-xl p-3">
+                  {startError}
+                </div>
+              ) : null}
+
+              {liveKitError && (
+                <div className="bg-yellow-950/40 text-yellow-400 text-xs rounded-xl p-3 flex items-start gap-2">
+                  <WifiOff className="w-4 h-4 shrink-0 mt-0.5" />
+                  <span>{liveKitError}</span>
+                </div>
+              )}
             </div>
           ) : (
             <>
               {messages.map((msg, index) => (
                 <div key={index} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
-                  <div className={`max-w-[80%] rounded-2xl px-4 py-3 ${msg.role === "user" ? "bg-indigo-600 text-white rounded-br-none" : "bg-gray-700 text-white rounded-bl-none"}`}>
+                  <div className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-xs ${
+                    msg.role === "user"
+                      ? "bg-[#D97757] text-white rounded-br-none shadow-md"
+                      : "bg-[#241C17] text-[#FFF9F5] rounded-bl-none shadow-sm"
+                  }`}>
                     {msg.role === "assistant" && (
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="text-lg">🤖</span>
-                        <span className="text-xs text-indigo-300">AI Interviewer</span>
+                      <div className="flex items-center gap-1.5 mb-1 text-[11px] text-[#FCE8DD] font-bold">
+                        <span>🤖</span>
+                        <span>AI Interviewer</span>
                       </div>
                     )}
-                    <p className="text-sm leading-relaxed">{msg.content}</p>
+                    <p className="leading-relaxed">{msg.content}</p>
                   </div>
                 </div>
               ))}
 
               {liveTranscript && (
                 <div className="flex justify-end">
-                  <div className="bg-indigo-800 text-indigo-100 rounded-2xl rounded-br-none px-4 py-3">
-                    <div className="flex items-center gap-2 mb-1">
-                      <Mic className="w-3 h-3 text-indigo-300 animate-pulse" />
-                      <span className="text-xs text-indigo-300">Listening...</span>
+                  <div className="bg-[#D97757]/20 text-[#FFF9F5] rounded-2xl rounded-br-none px-3.5 py-2.5 text-xs shadow-md">
+                    <div className="flex items-center gap-1.5 mb-1 text-[11px] text-[#FCE8DD]">
+                      <Mic className="w-3 h-3 text-[#FCE8DD] animate-pulse" />
+                      <span>Listening...</span>
                     </div>
-                    <p className="text-sm leading-relaxed">{liveTranscript}</p>
+                    <p className="leading-relaxed">{liveTranscript}</p>
                   </div>
                 </div>
               )}
 
               {isAiTyping && (
                 <div className="flex justify-start">
-                  <div className="bg-gray-700 rounded-2xl rounded-bl-none px-4 py-3">
+                  <div className="bg-[#241C17] rounded-2xl rounded-bl-none px-3.5 py-2.5 shadow-sm">
                     <div className="flex items-center gap-2">
-                      <span className="text-lg">🤖</span>
+                      <span className="text-sm">🤖</span>
                       <div className="flex gap-1">
-                        <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" />
-                        <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
-                        <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+                        <span className="w-1.5 h-1.5 bg-[#D97757] rounded-full animate-bounce" />
+                        <span className="w-1.5 h-1.5 bg-[#D97757] rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
+                        <span className="w-1.5 h-1.5 bg-[#D97757] rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
                       </div>
                     </div>
                   </div>
@@ -185,19 +179,54 @@ export default function ChatPanel({
           )}
         </div>
 
-        {interviewStarted && (
-          <div className="p-4 border-t border-gray-700">
+        {/* Pinned bottom footer: Action Buttons if not started, or Input Bar if started */}
+        {!interviewStarted ? (
+          <div className="p-4 bg-[#15100E] shrink-0 space-y-2">
+            {liveKitAvailable && (
+              <button
+                onClick={startLiveKitInterview}
+                disabled={liveKitLoading}
+                className="w-full py-3 bg-gradient-to-r from-amber-700 to-[#D97757] hover:opacity-95 text-white font-bold text-xs rounded-xl shadow-md flex items-center justify-center gap-2 cursor-pointer transition-all disabled:opacity-50"
+              >
+                {liveKitLoading ? (
+                  <><Loader className="animate-spin w-3.5 h-3.5" /> Connecting...</>
+                ) : (
+                  <><Wifi className="w-3.5 h-3.5" /> Start Voice Interview <ArrowRight className="w-3.5 h-3.5" /></>
+                )}
+              </button>
+            )}
+
+            <button
+              onClick={startInterview}
+              disabled={loading}
+              className="w-full py-3.5 bg-gradient-to-r from-[#D97757] via-[#C86544] to-[#B95F42] hover:opacity-95 text-white font-bold text-xs sm:text-sm rounded-xl shadow-lg shadow-[#D97757]/20 flex items-center justify-center gap-2 cursor-pointer transition-all disabled:opacity-50 hover:scale-[1.01] active:scale-[0.99]"
+            >
+              {loading ? (
+                <><Loader className="animate-spin w-4 h-4" /> Connecting Live Interview...</>
+              ) : (
+                <>Start Browser Interview <ArrowRight className="w-4 h-4" /></>
+              )}
+            </button>
+
+            {!liveKitAvailable && !supportsSpeech && (
+              <p className="text-yellow-400 text-[11px] text-center mt-2">
+                Voice input is not supported in this browser. You can type your answers instead.
+              </p>
+            )}
+          </div>
+        ) : (
+          <div className="p-3 bg-[#15100E] shrink-0">
             {isListening ? (
-              <div className="flex items-center gap-3 px-4 py-3 bg-indigo-600/20 border border-indigo-500/30 rounded-lg">
+              <div className="flex items-center gap-2 px-3 py-2 bg-[#D97757]/15 rounded-xl text-xs text-[#FCE8DD]">
                 <div className="flex gap-1">
-                  <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
-                  <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse" style={{ animationDelay: "200ms" }} />
-                  <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse" style={{ animationDelay: "400ms" }} />
+                  <span className="w-1.5 h-1.5 bg-[#D97757] rounded-full animate-pulse" />
+                  <span className="w-1.5 h-1.5 bg-[#D97757] rounded-full animate-pulse" style={{ animationDelay: "200ms" }} />
+                  <span className="w-1.5 h-1.5 bg-[#D97757] rounded-full animate-pulse" style={{ animationDelay: "400ms" }} />
                 </div>
-                <span className="text-indigo-200 text-sm">Listening — speak your answer now</span>
+                <span className="flex-1 truncate">Listening — speak your answer now</span>
                 {wordCount > 0 && (
-                  <span className="px-2 py-0.5 bg-indigo-500/30 text-indigo-100 rounded-full text-xs font-medium">
-                    {wordCount} words
+                  <span className="px-1.5 py-0.5 bg-[#D97757]/30 text-white rounded-md text-[10px] font-bold">
+                    {wordCount}w
                   </span>
                 )}
               </div>
@@ -209,17 +238,21 @@ export default function ChatPanel({
                   onChange={(e) => setManualInput(e.target.value)}
                   onKeyPress={(e) => e.key === "Enter" && sendManual()}
                   placeholder="Type your answer..."
-                  className="flex-1 bg-gray-700 text-white rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 placeholder-gray-400"
+                  className="flex-1 bg-[#241C17] text-[#FFF9F5] text-xs rounded-xl px-3 py-2.5 focus:outline-none focus:ring-1 focus:ring-[#D97757] placeholder-[#A89890]"
                   disabled={isAiTyping}
                 />
-                <button onClick={sendManual} disabled={!manualInput.trim() || isAiTyping} className="px-4 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50">
-                  <Send className="w-5 h-5" />
+                <button
+                  onClick={sendManual}
+                  disabled={!manualInput.trim() || isAiTyping}
+                  className="px-3 py-2.5 bg-[#D97757] hover:bg-[#B95F42] text-white rounded-xl disabled:opacity-40 transition-colors cursor-pointer"
+                >
+                  <Send className="w-4 h-4" />
                 </button>
               </div>
             ) : (
-              <div className="flex items-center justify-center gap-2 text-gray-500 text-sm">
-                <Mic className="w-4 h-4 text-gray-500" />
-                Getting ready...
+              <div className="flex items-center justify-center gap-1.5 text-[#A89890] text-xs py-1">
+                <Mic className="w-3.5 h-3.5 text-[#D97757]" />
+                <span>Ready for next question...</span>
               </div>
             )}
           </div>

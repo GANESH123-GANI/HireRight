@@ -137,7 +137,7 @@ export default function DatePicker({
               openPicker();
             }
           }}
-          className={`${className} w-full rounded-lg border border-border p-2.5 pr-10 text-sm text-foreground bg-background focus:ring-2 focus:ring-[#e050b0] cursor-pointer`}
+          className={`${className} w-full rounded-xl border border-[#EFE3DB] p-2.5 pr-10 text-sm text-[#382A25] bg-white focus:ring-2 focus:ring-[#D97757]/20 focus:border-[#D97757] outline-none cursor-pointer`}
         />
         <button
           type="button"

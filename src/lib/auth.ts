@@ -136,6 +136,7 @@ export async function getUserFromRequest(request: Request): Promise<AuthUser | n
     const user = await resolveSession(token);
     if (user) return user;
   }
+
   return null;
 }
 

@@ -15,7 +15,10 @@ export async function GET() {
     healthy = false;
   }
 
-  // OpenAI API key check (just verify it exists, don't call the API)
+  // AI API key check (Gemini / OpenAI)
+  checks.gemini = {
+    status: (process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY) ? "configured" : "missing",
+  };
   checks.openai = {
     status: process.env.OPENAI_API_KEY ? "configured" : "missing",
   };

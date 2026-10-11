@@ -1,21 +1,31 @@
 "use client";
 
+import { Plus_Jakarta_Sans } from "next/font/google";
+
+const plusJakarta = Plus_Jakarta_Sans({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800"],
+  display: "swap",
+});
+
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import Sidebar from "@/components/Sidebar";
 import StepIndicator from "@/components/StepIndicator";
 import { useAuth } from "@/contexts/AuthContext";
 import { timezoneLabel } from "@/lib/timezone";
 import { formatTimeLabel } from "@/lib/time";
-import { CheckCircle, Calendar, Clock, Video, Info, Mail, MessageCircle, ChevronRight, Shield, Star, X, ArrowRight } from "lucide-react";
+import { CheckCircle, Calendar, Clock, Video, Info, Mail, MessageCircle, ChevronRight, Shield, Star, X, ArrowRight, LogOut } from "lucide-react";
+import LogoutConfirmModal from "@/components/LogoutConfirmModal";
+import UserDropdown from "@/components/UserDropdown";
 
 const steps = [
   { number: 1, label: "Profile", sublabel: "Tell us who you are" },
   { number: 2, label: "Resume", sublabel: "Your expertise" },
-  { number: 3, label: "About You", sublabel: "What you're looking for" },
-  { number: 4, label: "Availability", sublabel: "Let's get you ready" },
-  { number: 5, label: "AI Interview", sublabel: "Let's get you ready" },
-  { number: 6, label: "All Set!", sublabel: "You're all set!" },
+  { number: 3, label: "Skills & Projects", sublabel: "Your experience & tech stacks" },
+  { number: 4, label: "AI Interview", sublabel: "Schedule assessment" },
+  { number: 5, label: "All Set!", sublabel: "You're all set!" },
 ];
 
 interface InterviewData {
@@ -37,11 +47,13 @@ interface ProfileData {
 }
 
 export default function ConfirmationPage() {
-  const { user, token } = useAuth();
-  const [currentStep] = useState(6);
+  const router = useRouter();
+  const { user, token, logout } = useAuth();
+  const [currentStep] = useState(5);
   const [interview, setInterview] = useState<InterviewData | null>(null);
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [showGuide, setShowGuide] = useState(false);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
   const progress = Math.round((currentStep / steps.length) * 100);
 
   useEffect(() => {
@@ -146,52 +158,60 @@ export default function ConfirmationPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row bg-[#09090b]">
+    <div className={`h-screen w-full overflow-hidden flex flex-col lg:flex-row bg-white ${plusJakarta.className}`}>
       <Sidebar currentStep={currentStep} progress={progress} />
-      <main className="flex-1 bg-[#09090b] overflow-auto">
-        <div className="p-4 bg-[#18181b] border-b border-[#27272a] flex items-center justify-between">
-          <div className="flex items-center gap-2 text-sm text-[#a1a1aa] font-mono uppercase tracking-wider">
-            <Shield className="w-4 h-4 text-[#f5c542]" />
-            Your data is safe with us
-          </div>
-            <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-[#e050b0]/10 flex items-center justify-center">
-              <span className="text-sm font-medium text-[#a78bfa]">{displayName.charAt(0).toUpperCase()}</span>
+      <main className="flex-1 bg-white min-w-0 h-screen flex flex-col overflow-hidden">
+        {/* Fixed Header: Top Bar + StepIndicator - permanently fixed at top, never moves when scrolling up or down */}
+        <div className="shrink-0 bg-white z-20">
+          <div className="h-14 px-4 sm:px-6 lg:px-8 bg-white flex items-center justify-between">
+            <div className="flex items-center gap-2 text-sm text-[#81736C] font-medium tracking-wide">
+              <Shield className="w-4 h-4 text-[#D97757]" />
+              Your data is safe with us
             </div>
-            <span className="text-sm font-medium text-white font-mono">Hi, {displayName}</span>
+            <div className="flex items-center gap-3">
+              <UserDropdown onLogoutClick={() => setShowLogoutModal(true)} customName={displayName} />
+            </div>
           </div>
+          <StepIndicator
+            steps={steps}
+            currentStep={currentStep}
+            onStepClick={(step) => {
+              if (step <= 3) router.push(`/profile?step=${step}`);
+              else if (step === 4) router.push("/interview");
+            }}
+          />
         </div>
-        <StepIndicator steps={steps} currentStep={currentStep} />
-        <div className="max-w-4xl mx-auto px-4 pb-8">
+        {/* Scrollable Main Content: Only this container scrolls, header stays permanently fixed at top */}
+        <div className="flex-1 overflow-y-auto w-full px-4 sm:px-6 lg:px-8 pb-12 pt-2">
           {/* Success Banner */}
-          <div className="bg-[#18181b] border border-[#4dacde]/30 p-6 mb-6 flex items-center gap-6">
-            <div className="w-16 h-16 bg-[#4dacde]/10 flex items-center justify-center flex-shrink-0">
-              <CheckCircle className="w-8 h-8 text-[#f5c542]" />
+          <div className="bg-white border border-[#EFE3DB] rounded-2xl p-6 sm:p-7 mb-6 flex items-center gap-6 shadow-sm">
+            <div className="w-14 h-14 rounded-2xl bg-[#FCE8DD] border border-[#D97757]/20 flex items-center justify-center flex-shrink-0">
+              <CheckCircle className="w-7 h-7 text-[#15803D]" />
             </div>
             <div className="flex-1">
-              <h3 className="text-xl font-bold text-white font-mono">All Set, {displayName}!</h3>
-              <p className="text-lg font-semibold text-white font-mono">Your 15-Minute AI Interview is Confirmed!</p>
-              <p className="text-sm text-[#a1a1aa] mt-1 font-mono">We&apos;re excited to connect with you and help you take the next step in your career journey.</p>
+              <h3 className="text-xl font-bold text-[#382A25]">All Set, {displayName}!</h3>
+              <p className="text-base font-semibold text-[#D97757]">Your 15-Minute AI Interview is Confirmed!</p>
+              <p className="text-sm text-[#81736C] mt-1">We&apos;re excited to connect with you and help you take the next step in your career journey.</p>
             </div>
-            <div className="hidden lg:block w-24 h-24 bg-[#e050b0]/10 flex items-center justify-center">
-              <span className="text-4xl">🤖</span>
+            <div className="hidden lg:flex w-20 h-20 bg-[#FCE8DD]/60 rounded-2xl border border-[#EFE3DB] items-center justify-center">
+              <span className="text-3xl">🤖</span>
             </div>
           </div>
 
           {/* Start Live Interview CTA */}
-          <div className="bg-[#18181b] border border-[#27272a] p-6 mb-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="bg-white border border-[#EFE3DB] rounded-2xl p-6 mb-6 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-[#e050b0]/10 flex items-center justify-center flex-shrink-0">
-                <Video className="w-6 h-6 text-[#a78bfa]" />
+              <div className="w-12 h-12 rounded-xl bg-[#FCE8DD] border border-[#D97757]/20 flex items-center justify-center flex-shrink-0">
+                <Video className="w-6 h-6 text-[#D97757]" />
               </div>
               <div>
-                <p className="font-semibold text-white font-mono">Ready when you are!</p>
-                <p className="text-sm text-[#a1a1aa] font-mono">Start your 15-minute AI video interview now.</p>
+                <p className="font-bold text-[#382A25]">Ready when you are!</p>
+                <p className="text-sm text-[#81736C]">Start your 15-minute AI video interview now.</p>
               </div>
             </div>
             <Link
               href="/interview/room"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-[#e050b0] text-white text-sm font-medium hover:bg-[#e050b0]/80 transition-colors flex-shrink-0 font-mono uppercase tracking-wider"
+              className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-[#D97757] hover:bg-[#B95F42] text-white text-sm font-semibold rounded-xl shadow-sm hover:shadow-md transition-all w-full sm:w-auto shrink-0"
             >
               Start Live Interview
               <ArrowRight className="w-4 h-4" />
@@ -200,66 +220,69 @@ export default function ConfirmationPage() {
 
           {/* Interview Details */}
           <div className="grid md:grid-cols-2 gap-6 mb-6">
-            <div className="bg-[#18181b] border border-[#27272a] p-6">
-              <h3 className="text-lg font-semibold text-white mb-4 font-mono uppercase tracking-wider">Your Interview Details</h3>
+            <div className="bg-white border border-[#EFE3DB] rounded-2xl p-6 shadow-sm">
+              <h3 className="text-base font-bold text-[#382A25] mb-4 uppercase tracking-wider text-xs">Your Interview Details</h3>
               <div className="space-y-4">
                 <div className="flex items-start gap-3">
-                  <Calendar className="w-5 h-5 text-[#a78bfa] mt-0.5" />
+                  <Calendar className="w-5 h-5 text-[#D97757] mt-0.5 flex-shrink-0" />
                   <div>
-                    <p className="text-xs text-[#a1a1aa] font-mono uppercase tracking-wider">Date</p>
-                    <p className="text-sm font-medium text-white font-mono">{formatDate(interviewDate)}</p>
+                    <p className="text-xs font-semibold text-[#81736C] uppercase tracking-wider">Date</p>
+                    <p className="text-sm font-bold text-[#382A25]">{formatDate(interviewDate)}</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
-                  <Clock className="w-5 h-5 text-[#a78bfa] mt-0.5" />
+                  <Clock className="w-5 h-5 text-[#D97757] mt-0.5 flex-shrink-0" />
                   <div>
-                    <p className="text-xs text-[#a1a1aa] font-mono uppercase tracking-wider">Time</p>
-                    <p className="text-sm font-medium text-white font-mono">{interviewTime} ({tzLabel}) <span className="ml-2 px-2 py-0.5 bg-[#e050b0]/20 text-[#a78bfa] text-xs font-mono">15 Min Interview</span></p>
+                    <p className="text-xs font-semibold text-[#81736C] uppercase tracking-wider">Time</p>
+                    <p className="text-sm font-bold text-[#382A25] flex items-center flex-wrap gap-2">
+                      {interviewTime} ({tzLabel}) 
+                      <span className="px-2.5 py-0.5 bg-[#FCE8DD] text-[#D97757] text-xs font-semibold rounded-md border border-[#D97757]/20">15 Min Interview</span>
+                    </p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
-                  <Video className="w-5 h-5 text-[#a78bfa] mt-0.5" />
+                  <Video className="w-5 h-5 text-[#D97757] mt-0.5 flex-shrink-0" />
                   <div>
-                    <p className="text-xs text-[#a1a1aa] font-mono uppercase tracking-wider">Interview Mode</p>
-                    <p className="text-sm font-medium text-white font-mono">AI Video Interview</p>
+                    <p className="text-xs font-semibold text-[#81736C] uppercase tracking-wider">Interview Mode</p>
+                    <p className="text-sm font-bold text-[#382A25]">AI Video Interview</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
-                  <Info className="w-5 h-5 text-[#a78bfa] mt-0.5" />
+                  <Info className="w-5 h-5 text-[#D97757] mt-0.5 flex-shrink-0" />
                   <div>
-                    <p className="text-xs text-[#a1a1aa] font-mono uppercase tracking-wider">Interview Type</p>
-                    <p className="text-sm font-medium text-white font-mono">Technical + Behavioral Assessment</p>
+                    <p className="text-xs font-semibold text-[#81736C] uppercase tracking-wider">Interview Type</p>
+                    <p className="text-sm font-bold text-[#382A25]">Technical + Behavioral Assessment</p>
                   </div>
                 </div>
               </div>
               <button 
                 onClick={addToCalendar}
-                className="w-full mt-6 py-3 border border-[#e050b0] text-[#a78bfa] text-sm font-medium hover:bg-[#e050b0]/10 transition-colors flex items-center justify-center gap-2 font-mono uppercase tracking-wider"
+                className="w-full mt-6 py-3 border border-[#EFE3DB] bg-[#FFF9F5] text-[#D97757] text-sm font-semibold rounded-xl hover:bg-[#FCE8DD]/50 hover:border-[#D97757] transition-all flex items-center justify-center gap-2 shadow-xs"
               >
                 <Calendar className="w-4 h-4" />
                 Add to Calendar
               </button>
             </div>
 
-            <div className="bg-[#18181b] border border-[#27272a] p-6">
-              <h3 className="text-lg font-semibold text-white mb-4 font-mono uppercase tracking-wider">What&apos;s Next?</h3>
+            <div className="bg-white border border-[#EFE3DB] rounded-2xl p-6 shadow-sm">
+              <h3 className="text-base font-bold text-[#382A25] mb-4 uppercase tracking-wider text-xs">What&apos;s Next?</h3>
               <ul className="space-y-4">
                 <li className="flex items-start gap-3">
-                  <CheckCircle className="w-5 h-5 text-[#f5c542] mt-0.5 flex-shrink-0" />
-                  <span className="text-sm text-[#a1a1aa] font-mono">Our AI will conduct a fair and personalized conversation to understand you better.</span>
+                  <CheckCircle className="w-5 h-5 text-[#15803D] mt-0.5 flex-shrink-0" />
+                  <span className="text-sm text-[#81736C]">Our AI will conduct a fair and personalized conversation to understand you better.</span>
                 </li>
                 <li className="flex items-start gap-3">
-                  <CheckCircle className="w-5 h-5 text-[#f5c542] mt-0.5 flex-shrink-0" />
-                  <span className="text-sm text-[#a1a1aa] font-mono">Showcase your skills, experiences and problem-solving approach.</span>
+                  <CheckCircle className="w-5 h-5 text-[#15803D] mt-0.5 flex-shrink-0" />
+                  <span className="text-sm text-[#81736C]">Showcase your skills, experiences and problem-solving approach.</span>
                 </li>
                 <li className="flex items-start gap-3">
-                  <CheckCircle className="w-5 h-5 text-[#f5c542] mt-0.5 flex-shrink-0" />
-                  <span className="text-sm text-[#a1a1aa] font-mono">Get matched with opportunities that are the right fit for you.</span>
+                  <CheckCircle className="w-5 h-5 text-[#15803D] mt-0.5 flex-shrink-0" />
+                  <span className="text-sm text-[#81736C]">Get matched with opportunities that are the right fit for you.</span>
                 </li>
               </ul>
               <button 
                 onClick={() => setShowGuide(true)}
-                className="w-full mt-6 py-3 bg-[#e050b0] text-white text-sm font-medium hover:bg-[#e050b0]/80 transition-colors flex items-center justify-center gap-2 font-mono uppercase tracking-wider"
+                className="w-full mt-6 py-3 bg-[#D97757] hover:bg-[#B95F42] text-white text-sm font-semibold rounded-xl transition-colors flex items-center justify-center gap-2 shadow-sm"
               >
                 View Interview Guide
                 <ChevronRight className="w-4 h-4" />
@@ -268,36 +291,36 @@ export default function ConfirmationPage() {
           </div>
 
           {/* Confirmation Sent */}
-          <div className="mb-6">
-            <h3 className="text-lg font-semibold text-white mb-2 font-mono uppercase tracking-wider">We&apos;ve Sent You a Confirmation!</h3>
-            <p className="text-sm text-[#a1a1aa] font-mono">Check your email and WhatsApp for all the details.</p>
+          <div className="mb-4">
+            <h3 className="text-lg font-bold text-[#382A25]">We&apos;ve Sent You a Confirmation!</h3>
+            <p className="text-sm text-[#81736C]">Check your email and WhatsApp for all the details.</p>
           </div>
 
           <div className="grid md:grid-cols-2 gap-6 mb-6">
             {/* Email */}
-            <div className="bg-[#18181b] border border-[#27272a] p-6">
+            <div className="bg-white border border-[#EFE3DB] rounded-2xl p-6 shadow-sm">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
-                  <Mail className="w-5 h-5 text-[#a78bfa]" />
-                  <span className="font-medium text-white font-mono uppercase tracking-wider">Email</span>
+                  <Mail className="w-5 h-5 text-[#D97757]" />
+                  <span className="font-bold text-[#382A25] text-sm">Email</span>
                 </div>
                 {interview?.emailSent ? (
-                  <span className="flex items-center gap-1 text-xs text-[#f5c542] font-mono"><CheckCircle className="w-3 h-3" /> Sent</span>
+                  <span className="flex items-center gap-1 text-xs text-[#15803D] font-bold"><CheckCircle className="w-3.5 h-3.5" /> Sent</span>
                 ) : (
-                  <span className="text-xs text-[#a1a1aa] font-mono">Not sent</span>
+                  <span className="text-xs text-[#81736C] font-medium">Not sent</span>
                 )}
               </div>
-              <div className="text-sm text-[#a1a1aa] mb-3 font-mono">
-                <p>To: <span className="text-white">{displayEmail}</span></p>
-                <p>Subject: <span className="text-white">Your AI Interview is Confirmed – {formatShortDate(interviewDate)}</span></p>
+              <div className="text-sm text-[#81736C] mb-3">
+                <p>To: <span className="text-[#382A25] font-semibold">{displayEmail}</span></p>
+                <p className="line-clamp-1">Subject: <span className="text-[#382A25] font-semibold">Your AI Interview is Confirmed – {formatShortDate(interviewDate)}</span></p>
               </div>
-              <div className="bg-[#1a1a1a] p-4 text-sm text-[#a1a1aa] font-mono">
-                <p>Hi {displayName},</p>
-                <p className="mt-2">Great news! Your 15-minute AI interview is confirmed.</p>
-                <p className="mt-2">📅 Date: {formatDate(interviewDate)}</p>
-                <p>🕐 Time: {interviewTime} ({tzLabel})</p>
-                <p className="mt-2">We look forward to meeting you!</p>
-                <p className="mt-2 text-[#a1a1aa]">– Team HireRight</p>
+              <div className="bg-[#FFF9F5] border border-[#EFE3DB] rounded-xl p-4 text-xs text-[#81736C] space-y-1.5">
+                <p className="font-semibold text-[#382A25]">Hi {displayName},</p>
+                <p>Great news! Your 15-minute AI interview is confirmed.</p>
+                <p className="font-medium text-[#382A25]">📅 Date: {formatDate(interviewDate)}</p>
+                <p className="font-medium text-[#382A25]">🕐 Time: {interviewTime} ({tzLabel})</p>
+                <p>We look forward to meeting you!</p>
+                <p className="text-[#81736C]">– Team HireRight</p>
               </div>
               <button 
                 onClick={() => {
@@ -305,35 +328,35 @@ export default function ConfirmationPage() {
                   const body = encodeURIComponent(`Hi ${displayName},\n\nGreat news! Your 15-minute AI interview is confirmed.\n\n📅 Date: ${formatDate(interviewDate)}\n🕐 Time: ${interviewTime} (${tzLabel})\n\nWe look forward to meeting you!\n\n– Team HireRight`);
                   window.open(`mailto:${displayEmail}?subject=${subject}&body=${body}`, "_blank");
                 }}
-                className="w-full mt-4 py-2 border border-[#27272a] text-[#a1a1aa] text-sm font-medium hover:bg-[#1a1a1a] transition-colors font-mono uppercase tracking-wider"
+                className="w-full mt-4 py-2.5 border border-[#EFE3DB] bg-[#FFF9F5] text-[#382A25] text-xs font-semibold rounded-xl hover:bg-[#FCE8DD]/40 hover:border-[#D97757] transition-all"
               >
                 Open Email
               </button>
             </div>
 
             {/* WhatsApp */}
-            <div className="bg-[#18181b] border border-[#27272a] p-6">
+            <div className="bg-white border border-[#EFE3DB] rounded-2xl p-6 shadow-sm">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
-                  <MessageCircle className="w-5 h-5 text-[#f5c542]" />
-                  <span className="font-medium text-white font-mono uppercase tracking-wider">WhatsApp</span>
+                  <MessageCircle className="w-5 h-5 text-[#15803D]" />
+                  <span className="font-bold text-[#382A25] text-sm">WhatsApp</span>
                 </div>
                 {interview?.whatsappSent ? (
-                  <span className="flex items-center gap-1 text-xs text-[#f5c542] font-mono"><CheckCircle className="w-3 h-3" /> Sent</span>
+                  <span className="flex items-center gap-1 text-xs text-[#15803D] font-bold"><CheckCircle className="w-3.5 h-3.5" /> Sent</span>
                 ) : (
-                  <span className="text-xs text-[#a1a1aa] font-mono">Not sent</span>
+                  <span className="text-xs text-[#81736C] font-medium">Not sent</span>
                 )}
               </div>
-              <div className="text-sm text-[#a1a1aa] mb-3 font-mono">
-                <p>To: <span className="text-white">{displayPhone}</span></p>
+              <div className="text-sm text-[#81736C] mb-3">
+                <p>To: <span className="text-[#382A25] font-semibold">{displayPhone}</span></p>
               </div>
-              <div className="bg-[#4dacde]/10 p-4 text-sm text-[#a1a1aa] font-mono">
-                <p>Hi {displayName}!</p>
-                <p className="mt-2">Your 15-minute AI Interview is confirmed.</p>
-                <p className="mt-2">📅 <strong className="text-white">{formatShortDate(interviewDate)}</strong></p>
-                <p>🕐 {interviewTime} ({tzLabel})</p>
-                <p className="mt-2">We&apos;re excited to connect with you and help you find the right opportunities.</p>
-                <p className="mt-2 text-[#a1a1aa]">– Team HireRight</p>
+              <div className="bg-[#FFF9F5] border border-[#EFE3DB] rounded-xl p-4 text-xs text-[#81736C] space-y-1.5">
+                <p className="font-semibold text-[#382A25]">Hi {displayName}!</p>
+                <p>Your 15-minute AI Interview is confirmed.</p>
+                <p className="font-medium text-[#382A25]">📅 {formatShortDate(interviewDate)}</p>
+                <p className="font-medium text-[#382A25]">🕐 {interviewTime} ({tzLabel})</p>
+                <p>We&apos;re excited to connect with you and help you find the right opportunities.</p>
+                <p className="text-[#81736C]">– Team HireRight</p>
               </div>
               <button 
                 onClick={() => {
@@ -341,7 +364,7 @@ export default function ConfirmationPage() {
                   const message = encodeURIComponent(`Hi ${displayName}!\n\nYour 15-minute AI Interview is confirmed.\n\n📅 ${formatShortDate(interviewDate)}\n🕐 ${interviewTime} (${tzLabel})\n\nWe're excited to connect with you and help you find the right opportunities.\n\n– Team HireRight`);
                   window.open(`https://wa.me/${phone}?text=${message}`, "_blank");
                 }}
-                className="w-full mt-4 py-2 bg-[#4dacde] text-black text-sm font-medium hover:bg-[#4dacde]/80 transition-colors font-mono uppercase tracking-wider"
+                className="w-full mt-4 py-2.5 bg-[#15803D] hover:bg-[#15803D]/90 text-white text-xs font-semibold rounded-xl shadow-xs transition-colors"
               >
                 Open WhatsApp
               </button>
@@ -349,113 +372,113 @@ export default function ConfirmationPage() {
           </div>
 
           {/* Reminders */}
-          <div className="bg-[#18181b] border border-[#27272a] p-6 mb-6">
-            <h3 className="text-lg font-semibold text-white mb-2 font-mono uppercase tracking-wider">We&apos;ll Remind You!</h3>
-            <p className="text-sm text-[#a1a1aa] mb-6 font-mono">You&apos;ll get reminders so you never miss your interview.</p>
+          <div className="bg-white border border-[#EFE3DB] rounded-2xl p-6 mb-6 shadow-sm">
+            <h3 className="text-base font-bold text-[#382A25] mb-1">We&apos;ll Remind You!</h3>
+            <p className="text-sm text-[#81736C] mb-6">You&apos;ll get reminders so you never miss your interview.</p>
             <div className="flex items-center justify-between">
               {[
                 { 
                   time: "24 Hours Before", 
-                  desc: "We'll send you a reminder via Email & WhatsApp.", 
+                  desc: "Reminder via Email & WhatsApp.", 
                   icon: "📧",
                   sent: interview?.reminder24hSent || false,
                   field: "reminder24hSent"
                 },
                 { 
                   time: "1 Hour Before", 
-                  desc: "Quick reminder with interview instructions.", 
+                  desc: "Quick reminder with tips.", 
                   icon: "⏰",
                   sent: interview?.reminder1hSent || false,
                   field: "reminder1hSent"
                 },
                 { 
-                  time: "15 Minutes Before", 
-                  desc: "Final reminder to help you get ready.", 
+                  time: "15 Min Before", 
+                  desc: "Final reminder to join.", 
                   icon: "🔔",
                   sent: interview?.reminder15mSent || false,
                   field: "reminder15mSent"
                 },
                 { 
                   time: "Interview Time", 
-                  desc: "Join and ace your AI interview!", 
+                  desc: "Join and ace your session!", 
                   icon: "🎯",
                   sent: interview?.reminderNowSent || false,
                   field: "reminderNowSent"
                 },
               ].map((reminder, i) => (
-                <div key={i} className="flex items-center gap-4">
+                <div key={i} className="flex items-center gap-3">
                   <div className="text-center">
-                    <div className={`w-12 h-12 flex items-center justify-center mx-auto mb-2 ${
+                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center mx-auto mb-2 border ${
                       reminder.sent 
-                        ? "bg-[#4dacde]/20" 
-                        : "bg-[#e050b0]/20"
+                        ? "bg-[#15803D]/10 border-[#15803D]/30" 
+                        : "bg-[#FCE8DD] border-[#D97757]/20"
                     }`}>
                       {reminder.sent ? (
-                        <CheckCircle className="w-6 h-6 text-[#f5c542]" />
+                        <CheckCircle className="w-6 h-6 text-[#15803D]" />
                       ) : (
                         <span className="text-xl">{reminder.icon}</span>
                       )}
                     </div>
-                    <p className="text-xs font-medium text-white font-mono">{reminder.time}</p>
-                    <p className="text-[10px] text-[#a1a1aa] max-w-[100px] font-mono">{reminder.desc}</p>
+                    <p className="text-xs font-bold text-[#382A25]">{reminder.time}</p>
+                    <p className="text-[10px] text-[#81736C] max-w-[100px] mt-0.5">{reminder.desc}</p>
                     {reminder.sent && (
-                      <p className="text-[10px] text-[#f5c542] font-medium mt-1 font-mono">✓ Sent</p>
+                      <p className="text-[10px] text-[#15803D] font-bold mt-1">✓ Sent</p>
                     )}
                   </div>
-                  {i < 3 && <ChevronRight className="w-4 h-4 text-[#2a2a2a]" />}
+                  {i < 3 && <ChevronRight className="w-4 h-4 text-[#EFE3DB]" />}
                 </div>
               ))}
             </div>
           </div>
 
           {/* Bottom CTA */}
-          <div className="bg-[#e050b0] p-6 flex items-center gap-6">
-            <div className="w-16 h-16 bg-[#09090b]/20 flex items-center justify-center flex-shrink-0">
-              <Star className="w-8 h-8 text-[#a78bfa]" />
+          <div className="bg-gradient-to-r from-[#D97757] to-[#B95F42] rounded-2xl p-6 sm:p-7 flex items-center gap-6 shadow-md text-white">
+            <div className="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center flex-shrink-0">
+              <Star className="w-7 h-7 text-white fill-white" />
             </div>
             <div className="flex-1">
-              <h4 className="text-lg font-bold text-white font-mono uppercase tracking-wider">You&apos;ve Taken the Right Step!</h4>
-              <p className="text-sm text-white/80 mt-1 font-mono">Believe in yourself. Showcase your best. Opportunities are waiting for you!</p>
-              <p className="text-sm text-white/80 font-mono">We&apos;re with you, every step of the way.</p>
+              <h4 className="text-lg font-bold">You&apos;ve Taken the Right Step!</h4>
+              <p className="text-sm text-white/90 mt-1">Believe in yourself. Showcase your best. Opportunities are waiting for you!</p>
+              <p className="text-sm text-white/90">We&apos;re with you, every step of the way.</p>
             </div>
           </div>
-<p className="text-center text-xs text-[#a1a1aa] mt-4 font-mono">
-             If you need any help, reach out to us at <span className="text-[#a78bfa]">care@hireright.com</span>
-           </p>
+          <p className="text-center text-xs text-[#81736C] mt-6">
+            If you need any help, reach out to us at <span className="text-[#D97757] font-semibold">care@hireright.com</span>
+          </p>
         </div>
       </main>
 
       {/* Interview Guide Modal */}
       {showGuide && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#09090b]/80 p-4">
-          <div className="bg-[#18181b] border border-[#27272a] w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-            <div className="sticky top-0 bg-[#18181b] border-b border-[#27272a] px-6 py-4 flex items-center justify-between">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4">
+          <div className="bg-white border border-[#EFE3DB] w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl shadow-2xl">
+            <div className="sticky top-0 bg-white border-b border-[#EFE3DB] px-6 py-4 flex items-center justify-between">
               <div>
-                <h2 className="text-xl font-bold text-white font-mono uppercase tracking-wider">AI Interview Guide</h2>
-                <p className="text-sm text-[#a1a1aa] font-mono">Tips to help you succeed in your 15-minute interview</p>
+                <h2 className="text-xl font-bold text-[#382A25]">AI Interview Guide</h2>
+                <p className="text-sm text-[#81736C]">Tips to help you succeed in your 15-minute interview</p>
               </div>
               <button
                 onClick={() => setShowGuide(false)}
-                className="w-10 h-10 hover:bg-[#1a1a1a] flex items-center justify-center transition-colors"
+                className="w-9 h-9 rounded-xl hover:bg-[#FCE8DD] flex items-center justify-center transition-colors"
               >
-                <X className="w-5 h-5 text-[#a1a1aa]" />
+                <X className="w-5 h-5 text-[#81736C]" />
               </button>
             </div>
             
             <div className="p-6 space-y-6">
               {/* Technical Questions */}
               <div>
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="w-8 h-8 bg-[#e050b0]/10 flex items-center justify-center">
-                    <span className="text-lg">💻</span>
+                <div className="flex items-center gap-2.5 mb-3">
+                  <div className="w-8 h-8 rounded-lg bg-[#FCE8DD] flex items-center justify-center">
+                    <span className="text-base">💻</span>
                   </div>
-                  <h3 className="font-semibold text-white font-mono uppercase tracking-wider">Technical Questions</h3>
+                  <h3 className="font-bold text-[#382A25] text-sm uppercase tracking-wide">Technical Questions</h3>
                 </div>
                 <ul className="space-y-2 ml-10">
                   {interviewGuide.technical.map((tip, i) => (
-                    <li key={i} className="text-sm text-[#a1a1aa] flex items-start gap-2 font-mono">
-                      <CheckCircle className="w-4 h-4 text-[#f5c542] mt-0.5 flex-shrink-0" />
-                      {tip}
+                    <li key={i} className="text-sm text-[#81736C] flex items-start gap-2">
+                      <CheckCircle className="w-4 h-4 text-[#15803D] mt-0.5 flex-shrink-0" />
+                      <span>{tip}</span>
                     </li>
                   ))}
                 </ul>
@@ -463,17 +486,17 @@ export default function ConfirmationPage() {
 
               {/* Behavioral Questions */}
               <div>
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="w-8 h-8 bg-[#e050b0]/10 flex items-center justify-center">
-                    <span className="text-lg">🤝</span>
+                <div className="flex items-center gap-2.5 mb-3">
+                  <div className="w-8 h-8 rounded-lg bg-[#FCE8DD] flex items-center justify-center">
+                    <span className="text-base">🤝</span>
                   </div>
-                  <h3 className="font-semibold text-white font-mono uppercase tracking-wider">Behavioral Questions</h3>
+                  <h3 className="font-bold text-[#382A25] text-sm uppercase tracking-wide">Behavioral Questions</h3>
                 </div>
                 <ul className="space-y-2 ml-10">
                   {interviewGuide.behavioral.map((tip, i) => (
-                    <li key={i} className="text-sm text-[#a1a1aa] flex items-start gap-2 font-mono">
-                      <CheckCircle className="w-4 h-4 text-[#f5c542] mt-0.5 flex-shrink-0" />
-                      {tip}
+                    <li key={i} className="text-sm text-[#81736C] flex items-start gap-2">
+                      <CheckCircle className="w-4 h-4 text-[#15803D] mt-0.5 flex-shrink-0" />
+                      <span>{tip}</span>
                     </li>
                   ))}
                 </ul>
@@ -481,50 +504,50 @@ export default function ConfirmationPage() {
 
               {/* General Tips */}
               <div>
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="w-8 h-8 bg-[#4dacde]/10 flex items-center justify-center">
-                    <span className="text-lg">✅</span>
+                <div className="flex items-center gap-2.5 mb-3">
+                  <div className="w-8 h-8 rounded-lg bg-[#FCE8DD] flex items-center justify-center">
+                    <span className="text-base">✅</span>
                   </div>
-                  <h3 className="font-semibold text-white font-mono uppercase tracking-wider">General Tips</h3>
+                  <h3 className="font-bold text-[#382A25] text-sm uppercase tracking-wide">General Tips</h3>
                 </div>
                 <ul className="space-y-2 ml-10">
                   {interviewGuide.general.map((tip, i) => (
-                    <li key={i} className="text-sm text-[#a1a1aa] flex items-start gap-2 font-mono">
-                      <CheckCircle className="w-4 h-4 text-[#f5c542] mt-0.5 flex-shrink-0" />
-                      {tip}
+                    <li key={i} className="text-sm text-[#81736C] flex items-start gap-2">
+                      <CheckCircle className="w-4 h-4 text-[#15803D] mt-0.5 flex-shrink-0" />
+                      <span>{tip}</span>
                     </li>
                   ))}
                 </ul>
               </div>
 
               {/* Interview Format */}
-              <div className="bg-[#e050b0]/10 p-5">
-                <h3 className="font-semibold text-[#a78bfa] mb-3 font-mono uppercase tracking-wider">Interview Format</h3>
+              <div className="bg-[#FFF9F5] border border-[#EFE3DB] rounded-xl p-5">
+                <h3 className="font-bold text-[#D97757] mb-3 text-xs uppercase tracking-wider">Interview Format</h3>
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div className="flex items-center gap-2">
-                    <Clock className="w-4 h-4 text-[#a78bfa]" />
-                    <span className="text-[#a1a1aa] font-mono">Duration: 15 minutes</span>
+                    <Clock className="w-4 h-4 text-[#D97757]" />
+                    <span className="text-[#382A25] font-medium">Duration: 15 minutes</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Video className="w-4 h-4 text-[#a78bfa]" />
-                    <span className="text-[#a1a1aa] font-mono">Mode: AI Video Interview</span>
+                    <Video className="w-4 h-4 text-[#D97757]" />
+                    <span className="text-[#382A25] font-medium">Mode: AI Video Interview</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <MessageCircle className="w-4 h-4 text-[#a78bfa]" />
-                    <span className="text-[#a1a1aa] font-mono">5-6 questions total</span>
+                    <MessageCircle className="w-4 h-4 text-[#D97757]" />
+                    <span className="text-[#382A25] font-medium">5-6 questions total</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Star className="w-4 h-4 text-[#a78bfa]" />
-                    <span className="text-[#a1a1aa] font-mono">Fair & unbiased evaluation</span>
+                    <Star className="w-4 h-4 text-[#D97757]" />
+                    <span className="text-[#382A25] font-medium">Fair & unbiased evaluation</span>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="sticky bottom-0 bg-[#18181b] border-t border-[#27272a] px-6 py-4">
+            <div className="sticky bottom-0 bg-white border-t border-[#EFE3DB] px-6 py-4">
               <button
                 onClick={() => setShowGuide(false)}
-                className="w-full py-3 bg-[#e050b0] text-white font-medium hover:bg-[#e050b0]/80 transition-colors font-mono uppercase tracking-wider"
+                className="w-full py-3 bg-[#D97757] hover:bg-[#B95F42] text-white font-semibold rounded-xl transition-colors shadow-sm"
               >
                 Got it, I&apos;m Ready!
               </button>
@@ -532,6 +555,14 @@ export default function ConfirmationPage() {
           </div>
         </div>
       )}
+      <LogoutConfirmModal
+        isOpen={showLogoutModal}
+        onClose={() => setShowLogoutModal(false)}
+        onConfirm={() => {
+          setShowLogoutModal(false);
+          logout();
+        }}
+      />
     </div>
   );
 }

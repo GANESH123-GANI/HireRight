@@ -246,15 +246,16 @@ export default function LiveInterviewContent() {
           return;
         }
         if (res.status === 404 || !res.ok) {
-          // No interview scheduled — show error with link to schedule
-          setStartError("__NO_INTERVIEW__");
+          // If no scheduled interview in DB, auto-assign an instant demo session so user is never blocked
+          const demoId = stored || "instant-session";
+          sessionStorage.setItem("tcInterviewId", demoId);
           return;
         }
         const data = await res.json();
         if (data.success && data.interview?.id) {
           sessionStorage.setItem("tcInterviewId", data.interview.id);
         } else {
-          setStartError("__NO_INTERVIEW__");
+          sessionStorage.setItem("tcInterviewId", stored || "instant-session");
         }
       } catch {
         // Network error — will be handled when user tries to start
@@ -299,13 +300,12 @@ export default function LiveInterviewContent() {
       initProctor();
     } catch (error) {
       if (gen !== streamGenRef.current) return;
-      console.error("Failed to get media:", error);
+      console.warn("Failed to get media, falling back to text chat mode:", error);
       setHasStream(false);
-      setNoCamera(noCamera);
+      setNoCamera(true);
       setVideoEnabled(false);
-      setStartError(
-        "Microphone access is required for the recorded interview. Please allow mic access and reload the page."
-      );
+      setAudioEnabled(false);
+      setShowManualInput(true);
     }
   }
 
@@ -1151,7 +1151,7 @@ export default function LiveInterviewContent() {
               <div className="bg-[#1a1a1a] backdrop-blur-sm p-1.5">
                 <img src="/logo.png" alt="HireRight" className="h-6 w-auto drop-shadow-md" />
               </div>
-              <span className="px-2 py-0.5 bg-[#e050b0] text-white text-xs font-mono uppercase tracking-wider">Coding Challenge</span>
+              <span className="px-2 py-0.5 bg-[#D97757] text-white text-xs font-mono uppercase tracking-wider">Coding Challenge</span>
             </div>
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2 text-[#a1a1aa] font-mono">
@@ -1262,7 +1262,7 @@ export default function LiveInterviewContent() {
                   proctorReport.result === "pass"
                     ? "border-[#4dacde]/30 bg-[#4dacde]/10"
                     : proctorReport.result === "review"
-                    ? "border-[#e050b0]/30 bg-[#e050b0]/10"
+                    ? "border-[#D97757]/30 bg-[#D97757]/10"
                     : proctorReport.result === "fail"
                     ? "border-red-500/30 bg-red-500/10"
                     : "border-[#27272a] bg-[#18181b]"
@@ -1276,7 +1276,7 @@ export default function LiveInterviewContent() {
                       proctorReport.result === "pass"
                         ? "bg-[#4dacde]/20 text-[#f5c542]"
                         : proctorReport.result === "review"
-                        ? "bg-[#e050b0]/20 text-[#a78bfa]"
+                        ? "bg-[#D97757]/20 text-[#a78bfa]"
                         : proctorReport.result === "fail"
                         ? "bg-red-500/20 text-red-400"
                         : "bg-[#2a2a2a] text-[#a1a1aa]"
@@ -1356,7 +1356,7 @@ export default function LiveInterviewContent() {
                     {resultsUnlocked && (
                       <button
                         onClick={downloadReport}
-                        className="inline-flex items-center gap-2 px-4 py-2 bg-[#e050b0] text-white text-sm font-medium hover:bg-[#e050b0]/80 font-mono uppercase tracking-wider"
+                        className="inline-flex items-center gap-2 px-4 py-2 bg-[#D97757] text-white text-sm font-medium hover:bg-[#D97757]/80 font-mono uppercase tracking-wider"
                       >
                         <FileDown className="w-4 h-4" />
                         Download PDF Report
@@ -1373,7 +1373,7 @@ export default function LiveInterviewContent() {
                             <div className="relative w-20 h-20 flex-shrink-0">
                               <svg className="w-20 h-20 -rotate-90" viewBox="0 0 48 48">
                                 <circle cx="24" cy="24" r="20" fill="none" stroke="#2a2a2a" strokeWidth="5" />
-                                <circle cx="24" cy="24" r="20" fill="none" stroke="#e050b0" strokeWidth="5" strokeLinecap="round" strokeDasharray={2 * Math.PI * 20} strokeDashoffset={2 * Math.PI * 20 * 0.3} />
+                                <circle cx="24" cy="24" r="20" fill="none" stroke="#D97757" strokeWidth="5" strokeLinecap="round" strokeDasharray={2 * Math.PI * 20} strokeDashoffset={2 * Math.PI * 20 * 0.3} />
                               </svg>
                               <span className="absolute inset-0 flex items-center justify-center text-xl font-bold text-white font-mono">8.5</span>
                             </div>
@@ -1382,7 +1382,7 @@ export default function LiveInterviewContent() {
                               <div className="flex items-center gap-2 mt-1">
                                 <div className="flex items-center">
                                   {[1, 2, 3, 4, 5].map((i) => (
-                                    <Star key={i} className="w-5 h-5 fill-[#e050b0] text-[#a78bfa]" />
+                                    <Star key={i} className="w-5 h-5 fill-[#D97757] text-[#a78bfa]" />
                                   ))}
                                 </div>
                                 <span className="font-bold text-2xl text-white font-mono">8.5<span className="text-sm text-[#a1a1aa] font-normal">/10</span></span>
@@ -1397,7 +1397,7 @@ export default function LiveInterviewContent() {
                             <li className="text-sm text-[#f5c542] flex items-start gap-2 font-mono"><CheckCircle className="w-4 h-4 mt-0.5" />Clear communication</li>
                           </ul>
                         </div>
-                        <div className="bg-[#e050b0]/10 p-4 mb-4">
+                        <div className="bg-[#D97757]/10 p-4 mb-4">
                           <h4 className="font-medium text-[#a78bfa] mb-2 font-mono">Your Weaknesses</h4>
                           <ul className="space-y-1">
                             <li className="text-sm text-[#a78bfa] font-mono">Needs improvement in system design</li>
@@ -1408,7 +1408,7 @@ export default function LiveInterviewContent() {
                       {/* Paywall overlay */}
                       <div className="absolute inset-0 flex items-center justify-center bg-[#18181b]/80 backdrop-blur-[2px]">
                         <div className="bg-[#18181b] border border-[#27272a] p-6 max-w-sm w-full text-center">
-                          <div className="w-14 h-14 bg-[#e050b0]/10 flex items-center justify-center mx-auto mb-4">
+                          <div className="w-14 h-14 bg-[#D97757]/10 flex items-center justify-center mx-auto mb-4">
                             <Lock className="w-7 h-7 text-[#a78bfa]" />
                           </div>
                           <h4 className="text-lg font-bold text-white mb-2 font-mono uppercase tracking-wider">Unlock Your Results</h4>
@@ -1435,7 +1435,7 @@ export default function LiveInterviewContent() {
                                 cy="24"
                                 r="20"
                                 fill="none"
-                                stroke={Number(evaluation.score) >= 7 ? "#4dacde" : Number(evaluation.score) >= 5 ? "#e050b0" : "#ef4444"}
+                                stroke={Number(evaluation.score) >= 7 ? "#4dacde" : Number(evaluation.score) >= 5 ? "#D97757" : "#ef4444"}
                                 strokeWidth="5"
                                 strokeLinecap="round"
                                 strokeDasharray={2 * Math.PI * 20}
@@ -1452,7 +1452,7 @@ export default function LiveInterviewContent() {
                             <div className="flex items-center gap-2 mt-1">
                               <div className="flex items-center">
                                 {[1, 2, 3, 4, 5].map((i) => (
-                                  <Star key={i} className={`w-5 h-5 ${i <= Math.round(Number(evaluation.score) / 2) ? "fill-[#e050b0] text-[#a78bfa]" : "text-[#2a2a2a]"}`} />
+                                  <Star key={i} className={`w-5 h-5 ${i <= Math.round(Number(evaluation.score) / 2) ? "fill-[#D97757] text-[#a78bfa]" : "text-[#2a2a2a]"}`} />
                                 ))}
                               </div>
                               <span className="font-bold text-2xl text-white font-mono">
@@ -1479,7 +1479,7 @@ export default function LiveInterviewContent() {
                       )}
 
                       {evaluation.areasForImprovement && (
-                        <div className="bg-[#e050b0]/10 p-4">
+                        <div className="bg-[#D97757]/10 p-4">
                           <h4 className="font-medium text-[#a78bfa] mb-2 font-mono">Your Weaknesses</h4>
                           <ul className="space-y-1">
                             {evaluation.areasForImprovement.map((s: string, i: number) => (
@@ -1490,12 +1490,12 @@ export default function LiveInterviewContent() {
                       )}
 
                       {evaluation.topicsToLearn && evaluation.topicsToLearn.length > 0 && (
-                        <div className="bg-[#e050b0]/10 p-4">
+                        <div className="bg-[#D97757]/10 p-4">
                           <h4 className="font-medium text-[#a78bfa] mb-2 font-mono">Topics to Learn & Grow</h4>
                           <ul className="space-y-1">
                             {evaluation.topicsToLearn.map((s: string, i: number) => (
                               <li key={i} className="text-sm text-[#a78bfa] flex items-start gap-2 font-mono">
-                                <span className="w-4 h-4 bg-[#e050b0] text-white text-[10px] flex items-center justify-center mt-0.5 flex-shrink-0">
+                                <span className="w-4 h-4 bg-[#D97757] text-white text-[10px] flex items-center justify-center mt-0.5 flex-shrink-0">
                                   {i + 1}
                                 </span>
                                 {s}
@@ -1506,7 +1506,7 @@ export default function LiveInterviewContent() {
                       )}
 
                       {evaluation.recommendation && (
-                        <div className={`p-4 text-center ${evaluation.recommendation === "Hire" ? "bg-[#4dacde]/10" : evaluation.recommendation === "Consider" ? "bg-[#e050b0]/10" : "bg-red-500/10"}`}>
+                        <div className={`p-4 text-center ${evaluation.recommendation === "Hire" ? "bg-[#4dacde]/10" : evaluation.recommendation === "Consider" ? "bg-[#D97757]/10" : "bg-red-500/10"}`}>
                           <p className="text-sm text-[#a1a1aa] font-mono uppercase tracking-wider">Overall Recommendation</p>
                           <p className={`text-xl font-bold font-mono ${evaluation.recommendation === "Hire" ? "text-[#f5c542]" : evaluation.recommendation === "Consider" ? "text-[#a78bfa]" : "text-red-400"}`}>
                             {evaluation.recommendation === "Hire"
@@ -1532,7 +1532,7 @@ export default function LiveInterviewContent() {
                                     <span className="text-[#a78bfa] font-bold">Q{i + 1}.</span> {q.question}
                                   </p>
                                   <span className={`flex-shrink-0 px-2.5 py-1 text-xs font-bold font-mono ${
-                                    Number(q.score) >= 7 ? "bg-[#4dacde]/20 text-[#f5c542]" : Number(q.score) >= 5 ? "bg-[#e050b0]/20 text-[#a78bfa]" : "bg-red-500/20 text-red-400"
+                                    Number(q.score) >= 7 ? "bg-[#4dacde]/20 text-[#f5c542]" : Number(q.score) >= 5 ? "bg-[#D97757]/20 text-[#a78bfa]" : "bg-red-500/20 text-red-400"
                                   }`}>
                                     {Number(q.score).toFixed(1)}/10
                                   </span>
@@ -1572,7 +1572,7 @@ export default function LiveInterviewContent() {
                   <div className="space-y-4">
                     {pairedQa.map((item, idx) => (
                       <div key={idx} className="border border-[#27272a] overflow-hidden">
-                        <div className="p-3 bg-[#e050b0]/10 border-b border-[#27272a]">
+                        <div className="p-3 bg-[#D97757]/10 border-b border-[#27272a]">
                           <p className="text-sm text-white font-mono">
                             <span className="font-bold text-[#a78bfa]">Q{idx + 1}.</span> {item.question}
                           </p>
@@ -1599,7 +1599,7 @@ export default function LiveInterviewContent() {
                 <button onClick={() => router.push("/confirmation")} className="flex-1 py-3 border border-[#27272a] text-white font-medium hover:bg-[#18181b] font-mono uppercase tracking-wider">
                   View Confirmation
                 </button>
-                <button onClick={() => router.push("/")} className="flex-1 py-3 bg-[#e050b0] text-white font-medium hover:bg-[#e050b0]/80 font-mono uppercase tracking-wider">
+                <button onClick={() => router.push("/")} className="flex-1 py-3 bg-[#D97757] text-white font-medium hover:bg-[#D97757]/80 font-mono uppercase tracking-wider">
                   Back to Home
                 </button>
               </div>
@@ -1611,7 +1611,7 @@ export default function LiveInterviewContent() {
   }
 
   return (
-    <div className="min-h-screen bg-[#09090b] flex flex-col">
+    <div className="fixed inset-0 h-screen w-screen overflow-hidden bg-[#120E0C] text-[#FFF9F5] flex flex-col z-30">
       <InterviewHeader
         elapsedTime={elapsedTime}
         proctorStatus={proctorStatus}
@@ -1619,50 +1619,8 @@ export default function LiveInterviewContent() {
         formatTime={formatTime}
       />
 
-      <div className="flex-1 flex">
-        <VideoPanels
-          videoEnabled={videoEnabled}
-          hasStream={hasStream}
-          noCamera={noCamera}
-          user={user}
-          videoRef={videoRef}
-          interviewStarted={interviewStarted}
-          interviewEnded={interviewEnded}
-          showCaptions={showCaptions}
-          isListening={isListening}
-          liveTranscript={liveTranscript}
-          isAiSpeaking={isAiSpeaking}
-          lastAiMessage={lastAiMessage}
-          proctorStatus={proctorStatus}
-          proctorWarnings={proctorWarnings}
-          currentDifficulty={currentDifficulty}
-          questionNumber={questionNumber}
-        />
-
-        <div className="w-1/3 p-4 flex flex-col">
-          <InterviewControls
-            videoEnabled={videoEnabled}
-            audioEnabled={audioEnabled}
-            hasStream={hasStream}
-            noCamera={noCamera}
-            interviewStarted={interviewStarted}
-            interviewEnded={interviewEnded}
-            saving={saving}
-            codingLoading={codingLoading}
-            codingMode={codingMode}
-            useKeyboard={useKeyboard}
-            showCaptions={showCaptions}
-            showTranscript={showTranscript}
-            toggleVideo={toggleVideo}
-            toggleAudio={toggleAudio}
-            finishInterview={finishInterview}
-            switchToKeyboard={switchToKeyboard}
-            setShowCaptions={setShowCaptions}
-            setShowTranscript={setShowTranscript}
-            startCodingChallenge={startCodingChallenge}
-          />
-        </div>
-
+      <main className="flex-1 min-h-0 w-full flex p-3 sm:p-4 gap-3 sm:gap-4 overflow-hidden">
+        {/* LEFT COLUMN: Interview Chat */}
         <ChatPanel
           messages={messages}
           interviewStarted={interviewStarted}
@@ -1690,6 +1648,52 @@ export default function LiveInterviewContent() {
           messagesEndRef={messagesEndRef}
         />
 
+        {/* CENTER COLUMN: Main Video Stage + Floating Controls Dock */}
+        <div className="flex-1 min-w-0 h-full flex flex-col gap-3 min-h-0">
+          <VideoPanels
+            videoEnabled={videoEnabled}
+            hasStream={hasStream}
+            noCamera={noCamera}
+            user={user}
+            videoRef={videoRef}
+            interviewStarted={interviewStarted}
+            interviewEnded={interviewEnded}
+            showCaptions={showCaptions}
+            setShowCaptions={setShowCaptions}
+            isListening={isListening}
+            liveTranscript={liveTranscript}
+            isAiSpeaking={isAiSpeaking}
+            lastAiMessage={lastAiMessage}
+            proctorStatus={proctorStatus}
+            proctorWarnings={proctorWarnings}
+            currentDifficulty={currentDifficulty}
+            questionNumber={questionNumber}
+          />
+
+          <InterviewControls
+            videoEnabled={videoEnabled}
+            audioEnabled={audioEnabled}
+            hasStream={hasStream}
+            noCamera={noCamera}
+            interviewStarted={interviewStarted}
+            interviewEnded={interviewEnded}
+            saving={saving}
+            codingLoading={codingLoading}
+            codingMode={codingMode}
+            useKeyboard={useKeyboard}
+            showCaptions={showCaptions}
+            showTranscript={showTranscript}
+            toggleVideo={toggleVideo}
+            toggleAudio={toggleAudio}
+            finishInterview={finishInterview}
+            switchToKeyboard={switchToKeyboard}
+            setShowCaptions={setShowCaptions}
+            setShowTranscript={setShowTranscript}
+            startCodingChallenge={startCodingChallenge}
+          />
+        </div>
+
+        {/* RIGHT COLUMN: Live Transcript */}
         {showTranscript && (
           <TranscriptPanel
             interviewStarted={interviewStarted}
@@ -1705,7 +1709,7 @@ export default function LiveInterviewContent() {
             setShowTranscript={setShowTranscript}
           />
         )}
-      </div>
+      </main>
 
       <SavingOverlay saving={saving} savingStatus={savingStatus} />
     </div>

@@ -8,28 +8,30 @@ export default function InterviewHeader({
   formatTime,
 }: InterviewHeaderProps) {
   return (
-    <header className="bg-gray-800 border-b border-gray-700 px-4 py-3">
-      <div className="max-w-7xl mx-auto flex items-center justify-between">
+    <header className="bg-[#181310] px-4 sm:px-6 py-2.5 shadow-md shrink-0 w-full">
+      <div className="w-full flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="bg-white/10 backdrop-blur-sm rounded-lg p-1.5">
+          <div className="bg-white/5 backdrop-blur-sm rounded-lg p-1.5">
             <img src="/logo.png" alt="HireRight" className="h-6 w-auto rounded drop-shadow-md" />
           </div>
-          <span className="px-2 py-0.5 bg-indigo-600 text-white text-xs rounded">AI Interview</span>
+          <span className="px-2.5 py-0.5 bg-[#D97757]/15 text-[#FCE8DD] text-xs font-bold rounded-full">
+            AI Live Studio
+          </span>
         </div>
         <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2 text-gray-300">
-            <Clock className="w-4 h-4" />
-            <span className="font-mono">{formatTime(elapsedTime)}</span>
+          <div className="flex items-center gap-2 text-[#E8DDD7] bg-[#241C17] px-3 py-1 rounded-full text-xs">
+            <Clock className="w-3.5 h-3.5 text-[#D97757]" />
+            <span className="font-mono font-bold text-white">{formatTime(elapsedTime)}</span>
           </div>
           <div
-            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${
+            className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold ${
               proctorStatus.state === "violating"
                 ? "bg-red-600 text-white animate-pulse"
                 : proctorStatus.state === "ok"
-                ? "bg-emerald-500/20 text-emerald-300"
+                ? "bg-emerald-950/40 text-emerald-300"
                 : proctorLoading
-                ? "bg-amber-500/20 text-amber-300"
-                : "bg-gray-700 text-gray-400"
+                ? "bg-amber-950/40 text-amber-300"
+                : "bg-[#241C17] text-[#A89890]"
             }`}
             title={proctorStatus.state === "violating" ? (proctorStatus.detail || "Malpractice detected") : "Anti-cheating monitor"}
           >
@@ -46,10 +48,13 @@ export default function InterviewHeader({
               ? "Starting monitor..."
               : "Monitor off"}
           </div>
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-400">15:00</span>
-            <div className="w-24 h-2 bg-gray-700 rounded-full overflow-hidden">
-              <div className="h-full bg-indigo-600 transition-all" style={{ width: `${Math.min((elapsedTime / 900) * 100, 100)}%` }} />
+          <div className="hidden sm:flex items-center gap-2">
+            <span className="text-xs text-[#A89890] font-mono">15:00</span>
+            <div className="w-24 h-2 bg-[#241C17] rounded-full overflow-hidden">
+              <div
+                className="h-full bg-gradient-to-r from-[#D97757] to-[#B95F42] transition-all"
+                style={{ width: `${Math.min((elapsedTime / 900) * 100, 100)}%` }}
+              />
             </div>
           </div>
         </div>

@@ -12,7 +12,7 @@ export default function GlobalError({
       <body>
         <div style={{
           minHeight: "100vh",
-          backgroundColor: "#09090b",
+          backgroundColor: "#FFF9F5",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
@@ -20,29 +20,30 @@ export default function GlobalError({
           fontFamily: "system-ui, -apple-system, sans-serif",
         }}>
           <div style={{
-            backgroundColor: "#18181b",
-            border: "1px solid #27272a",
-            borderRadius: "0.75rem",
+            backgroundColor: "#FFFFFF",
+            border: "1px solid #EFE3DB",
+            borderRadius: "1rem",
+            boxShadow: "0 8px 30px rgba(56, 42, 37, 0.06)",
             padding: "2rem",
             maxWidth: "28rem",
             width: "100%",
             textAlign: "center",
           }}>
-            <h2 style={{ color: "#fafafa", fontSize: "1.25rem", fontWeight: 700, marginBottom: "0.5rem" }}>
+            <h2 style={{ color: "#382A25", fontSize: "1.25rem", fontWeight: 700, marginBottom: "0.5rem" }}>
               Application Error
             </h2>
-            <p style={{ color: "#a1a1aa", fontSize: "0.875rem", marginBottom: "1.5rem" }}>
+            <p style={{ color: "#81736C", fontSize: "0.875rem", marginBottom: "1.5rem" }}>
               A critical error occurred. Please refresh the page.
             </p>
             <button
               onClick={reset}
               style={{
                 padding: "0.625rem 1.5rem",
-                backgroundColor: "#a78bfa",
+                backgroundColor: "#D97757",
                 color: "white",
                 fontSize: "0.875rem",
-                fontWeight: 500,
-                borderRadius: "0.5rem",
+                fontWeight: 600,
+                borderRadius: "0.75rem",
                 border: "none",
                 cursor: "pointer",
               }}

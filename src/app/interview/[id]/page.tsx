@@ -183,17 +183,17 @@ export default function InterviewPage({ params }: { params: Promise<{ id: string
   const getCategoryColor = (category: string) => {
     switch (category) {
       case "technical":
-        return "bg-blue-100 text-blue-700";
+        return "bg-blue-50 text-[#2563EB] border border-blue-200";
       case "behavioral":
-        return "bg-purple-100 text-purple-700";
+        return "bg-[#FCE8DD] text-[#D97757] border border-[#EFE3DB]";
       case "project_based":
-        return "bg-green-100 text-green-700";
+        return "bg-emerald-50 text-[#15803D] border border-emerald-200";
       case "problem_solving":
-        return "bg-orange-100 text-orange-700";
+        return "bg-amber-50 text-[#B45309] border border-amber-200";
       case "skill_based":
-        return "bg-pink-100 text-pink-700";
+        return "bg-[#FCE8DD] text-[#D97757] border border-[#EFE3DB]";
       default:
-        return "bg-gray-100 text-gray-700";
+        return "bg-[#FFF9F5] text-[#81736C] border border-[#EFE3DB]";
     }
   };
 
@@ -213,40 +213,42 @@ export default function InterviewPage({ params }: { params: Promise<{ id: string
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#09090b] flex items-center justify-center">
+      <div className="min-h-screen bg-[#FFF9F5] flex items-center justify-center">
         <div className="text-center">
-          <div className="h-8 w-8 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-[#a1a1aa]">Loading interview...</p>
+          <div className="h-8 w-8 border-4 border-[#D97757] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-[#81736C] text-sm font-medium">Loading interview...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#09090b] flex flex-col">
+    <div className="min-h-screen bg-[#FFF9F5] flex flex-col">
       {/* Header */}
-      <div className="bg-[#18181b] border-b border-[#27272a] px-4 py-3">
+      <div className="bg-white border-b border-[#EFE3DB] px-4 py-3 shadow-[0_2px_10px_rgb(56,42,37,0.03)]">
         <div className="max-w-3xl mx-auto">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-3">
-              <Brain className="h-5 w-5 text-[#a78bfa]" />
-              <span className="font-semibold text-white">AI Interview</span>
-              <span className="text-sm text-[#a1a1aa]">
+              <div className="w-8 h-8 rounded-lg bg-[#FCE8DD] border border-[#EFE3DB] flex items-center justify-center">
+                <Brain className="h-4 w-4 text-[#D97757]" />
+              </div>
+              <span className="font-bold text-[#382A25]">AI Interview</span>
+              <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-[#FFF9F5] border border-[#EFE3DB] text-[#81736C]">
                 Q{currentQuestion?.questionNumber || 0}/{totalQuestions}
               </span>
             </div>
             <div className="flex items-center gap-4">
-              <div className={`flex items-center gap-2 px-3 py-1 rounded-full ${
-                timeRemaining < 60 ? "bg-red-100 text-red-700" :
-                timeRemaining < 180 ? "bg-yellow-100 text-yellow-700" :
-                "bg-gray-100 text-gray-700"
+              <div className={`flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold border ${
+                timeRemaining < 60 ? "bg-red-50 text-[#B91C1C] border-red-200" :
+                timeRemaining < 180 ? "bg-amber-50 text-[#B45309] border-amber-200" :
+                "bg-[#FCE8DD] text-[#D97757] border-[#EFE3DB]"
               }`}>
-                <Clock className="h-4 w-4" />
-                <span className="font-mono text-sm font-medium">{formatTime(timeRemaining)}</span>
+                <Clock className="h-3.5 w-3.5" />
+                <span className="font-mono">{formatTime(timeRemaining)}</span>
               </div>
               <button
                 onClick={handleEndInterview}
-                className="text-sm text-[#a1a1aa] hover:text-gray-700"
+                className="text-xs font-medium text-[#81736C] hover:text-[#B91C1C] transition-colors"
               >
                 End Interview
               </button>
@@ -256,12 +258,12 @@ export default function InterviewPage({ params }: { params: Promise<{ id: string
           {/* Timeline */}
           <div className="relative">
             {/* Timeline bar background */}
-            <div className="h-2 bg-[#27272a] rounded-full overflow-hidden">
+            <div className="h-2 bg-[#EFE3DB] rounded-full overflow-hidden">
               <div
                 className={`h-full rounded-full transition-all duration-1000 ${
-                  timeRemaining < 60 ? "bg-red-500" :
-                  timeRemaining < 180 ? "bg-yellow-500" :
-                  "bg-indigo-600"
+                  timeRemaining < 60 ? "bg-[#B91C1C]" :
+                  timeRemaining < 180 ? "bg-[#B45309]" :
+                  "bg-[#D97757]"
                 }`}
                 style={{ width: `${getTimelineSegments().elapsed}%` }}
               />
@@ -269,7 +271,7 @@ export default function InterviewPage({ params }: { params: Promise<{ id: string
             {/* Timeline labels */}
             <div className="flex justify-between mt-1">
               {getTimelineSegments().segments.map((seg, i) => (
-                <span key={i} className="text-[10px] text-gray-400 font-mono">
+                <span key={i} className="text-[10px] text-[#81736C] font-mono">
                   {seg.label}
                 </span>
               ))}
@@ -279,11 +281,11 @@ export default function InterviewPage({ params }: { params: Promise<{ id: string
       </div>
 
       {/* Question Progress */}
-      <div className="bg-white border-b border-[#27272a]">
+      <div className="bg-white border-b border-[#EFE3DB]">
         <div className="max-w-3xl mx-auto">
-          <div className="h-1 bg-[#27272a]">
+          <div className="h-1 bg-[#EFE3DB]">
             <div
-              className="h-1 bg-indigo-600 transition-all duration-300"
+              className="h-1 bg-[#D97757] transition-all duration-300"
               style={{ width: `${((currentQuestion?.questionNumber || 0) / totalQuestions) * 100}%` }}
             />
           </div>
@@ -291,35 +293,37 @@ export default function InterviewPage({ params }: { params: Promise<{ id: string
       </div>
 
       {/* Chat Messages */}
-      <div className="flex-1 overflow-y-auto px-4 py-6">
+      <div className="flex-1 overflow-y-auto px-4 py-6 bg-[#FFF9F5]">
         <div className="max-w-3xl mx-auto space-y-4">
           {messages.map((msg, i) => (
             <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
-              <div className={`max-w-[80%] rounded-2xl px-4 py-3 ${
+              <div className={`max-w-[80%] rounded-2xl px-5 py-3.5 ${
                 msg.role === "user"
-                  ? "bg-[#a78bfa] text-white"
-                  : "bg-white border border-[#27272a] text-white"
+                  ? "bg-[#D97757] text-white shadow-sm"
+                  : "bg-white border border-[#EFE3DB] text-[#382A25] shadow-[0_4px_16px_rgb(56,42,37,0.04)]"
               }`}>
                 {msg.role === "ai" && msg.category && (
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className={`text-xs px-2 py-0.5 rounded-full ${getCategoryColor(msg.category)}`}>
+                  <div className="flex items-center gap-2 mb-2 flex-wrap">
+                    <span className={`text-[11px] px-2 py-0.5 rounded-full font-medium ${getCategoryColor(msg.category)}`}>
                       {msg.category.replace("_", " ")}
                     </span>
                     {msg.skill && (
-                      <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-600">
+                      <span className="text-[11px] px-2 py-0.5 rounded-full bg-[#FFF9F5] border border-[#EFE3DB] text-[#81736C]">
                         {msg.skill}
                       </span>
                     )}
                     {msg.questionNumber && (
-                      <span className="text-xs text-gray-400">Q{msg.questionNumber}</span>
+                      <span className="text-xs text-[#81736C] font-semibold">Q{msg.questionNumber}</span>
                     )}
                   </div>
                 )}
-                <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                <p className="text-sm whitespace-pre-wrap leading-relaxed">{msg.content}</p>
                 {msg.score !== undefined && (
-                  <div className="mt-2 flex items-center gap-2">
-                    <span className={`text-xs font-medium ${
-                      msg.score >= 7 ? "text-emerald-400" : msg.score >= 5 ? "text-yellow-400" : "text-red-400"
+                  <div className="mt-2.5 pt-2 border-t border-[#EFE3DB] flex items-center gap-2">
+                    <span className={`text-xs font-semibold px-2 py-0.5 rounded-md ${
+                      msg.score >= 7 ? "bg-emerald-50 text-[#15803D] border border-emerald-200" :
+                      msg.score >= 5 ? "bg-amber-50 text-[#B45309] border border-amber-200" :
+                      "bg-red-50 text-[#B91C1C] border border-red-200"
                     }`}>
                       Score: {msg.score}/10
                     </span>
@@ -330,11 +334,11 @@ export default function InterviewPage({ params }: { params: Promise<{ id: string
           ))}
           {sending && (
             <div className="flex justify-start">
-              <div className="bg-white border border-[#27272a] rounded-2xl px-4 py-3">
+              <div className="bg-white border border-[#EFE3DB] rounded-2xl px-4 py-3 shadow-sm">
                 <div className="flex items-center gap-2">
-                  <div className="h-2 w-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
-                  <div className="h-2 w-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
-                  <div className="h-2 w-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+                  <div className="h-2 w-2 bg-[#D97757] rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
+                  <div className="h-2 w-2 bg-[#D97757] rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
+                  <div className="h-2 w-2 bg-[#D97757] rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
                 </div>
               </div>
             </div>
@@ -345,7 +349,7 @@ export default function InterviewPage({ params }: { params: Promise<{ id: string
 
       {/* Input Area */}
       {!completed && (
-        <div className="bg-white border-t border-[#27272a] px-4 py-4">
+        <div className="bg-white border-t border-[#EFE3DB] px-4 py-4 shadow-sm">
           <div className="max-w-3xl mx-auto">
             <div className="flex items-end gap-3">
               <textarea
@@ -355,18 +359,18 @@ export default function InterviewPage({ params }: { params: Promise<{ id: string
                 onKeyDown={handleKeyDown}
                 placeholder="Type your answer..."
                 rows={2}
-                className="flex-1 resize-none border border-[#27272a] rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-[#a78bfa] focus:border-transparent bg-[#18181b] text-white placeholder-[#a1a1aa]"
+                className="flex-1 resize-none border border-[#EFE3DB] rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-[#D97757]/20 focus:border-[#D97757] bg-[#FFF9F5] text-[#382A25] placeholder-[#81736C]/60 outline-none transition-all"
                 disabled={sending}
               />
               <button
                 onClick={handleSend}
                 disabled={!answer.trim() || sending}
-                className="bg-[#a78bfa] text-white p-3 rounded-xl hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="bg-[#D97757] text-white p-3 rounded-xl hover:bg-[#B95F42] disabled:opacity-50 disabled:cursor-not-allowed shadow-sm transition-colors"
               >
                 <Send className="h-5 w-5" />
               </button>
             </div>
-            <p className="text-xs text-gray-400 mt-2">Press Enter to send, Shift+Enter for new line</p>
+            <p className="text-xs text-[#81736C] mt-2">Press Enter to send, Shift+Enter for new line</p>
           </div>
         </div>
       )}

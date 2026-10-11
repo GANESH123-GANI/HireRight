@@ -16,7 +16,14 @@ export async function GET(request: Request) {
     });
 
     if (!profile) {
-      return NextResponse.json({ error: "Profile not found" }, { status: 404 });
+      const newProfile = await prisma.profile.create({
+        data: {
+          userId: user.userId,
+          step: 1,
+        },
+        include: { user: { select: { id: true, email: true, name: true, phone: true } } },
+      });
+      return NextResponse.json({ success: true, profile: newProfile });
     }
 
     return NextResponse.json({ success: true, profile });
@@ -106,8 +113,8 @@ export async function PUT(request: Request) {
         ...(preferredDate !== undefined && { preferredDate: safeUpdate("preferredDate", preferredDate, currentProfile?.preferredDate) }),
         ...(preferredTimeSlot !== undefined && { preferredTimeSlot: safeUpdate("preferredTimeSlot", preferredTimeSlot, currentProfile?.preferredTimeSlot) }),
         ...(timezone !== undefined && { timezone }),
-        ...(resumeUrl !== undefined && { resumeUrl }),
-        ...(resumeFileName !== undefined && { resumeFileName }),
+        ...(resumeUrl !== undefined && { resumeUrl: resumeUrl || null }),
+        ...(resumeFileName !== undefined && { resumeFileName: resumeFileName || null }),
       },
       create: {
         userId: user.userId,

@@ -15,6 +15,7 @@ export default function VideoPanels({
   interviewStarted,
   interviewEnded,
   showCaptions,
+  setShowCaptions,
   isListening,
   liveTranscript,
   isAiSpeaking,
@@ -25,74 +26,96 @@ export default function VideoPanels({
   questionNumber,
 }: VideoPanelsProps) {
   return (
-    <div className="w-1/3 p-4 flex flex-col">
-      {/* Candidate video */}
-      <div className="bg-gray-800 rounded-xl overflow-hidden mb-4 relative" style={{ aspectRatio: "4/3" }}>
-        {videoEnabled ? (
-          <video ref={videoRef} autoPlay muted playsInline className="w-full h-full object-cover" />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center">
-            <div className="w-20 h-20 bg-gray-700 rounded-full flex items-center justify-center">
-              <span className="text-3xl font-bold text-gray-400">{user?.name?.charAt(0) || "U"}</span>
-            </div>
+    <div className="relative flex-1 min-h-0 w-full h-full rounded-2xl overflow-hidden bg-[#17120F] shadow-2xl shadow-black/60 flex items-center justify-center">
+      {/* Candidate Video */}
+      {videoEnabled ? (
+        <video
+          ref={videoRef}
+          autoPlay
+          muted
+          playsInline
+          className="w-full h-full object-cover"
+        />
+      ) : (
+        <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-b from-[#1F1814] to-[#140F0D] text-[#FFF9F5] p-6">
+          <div className="w-24 h-24 rounded-full bg-[#241C17] flex items-center justify-center text-3xl font-bold text-[#FCE8DD] shadow-lg mb-3">
+            {user?.name?.charAt(0) || "U"}
           </div>
-        )}
-        <div className="absolute bottom-2 left-2 px-2 py-1 bg-black/50 rounded text-xs text-white">You</div>
-        {interviewStarted && showCaptions && (isListening || liveTranscript) && (
-          <div className="absolute bottom-10 left-2 right-2 px-3 py-2 bg-black/70 backdrop-blur rounded-lg text-sm text-white text-center">
-            {liveTranscript || <span className="text-white/70 animate-pulse">Listening — speak now…</span>}
-          </div>
-        )}
-        {interviewStarted && !interviewEnded && (
-          <div className="absolute top-2 right-2 px-2 py-1 bg-red-600 rounded text-xs text-white flex items-center gap-1">
-            <span className="w-2 h-2 bg-white rounded-full animate-pulse" /> REC
-          </div>
-        )}
-        {proctorStatus.state === "violating" && (
-          <div className="absolute top-2 left-2 right-2 z-10 px-3 py-2 bg-red-600 text-white text-xs font-semibold rounded-lg flex items-center gap-2 animate-pulse shadow-lg">
-            <AlertTriangle className="w-4 h-4 flex-shrink-0" />
-            <span>{PROCTOR_MESSAGES[proctorStatus.type] || "Malpractice detected!"}</span>
-          </div>
-        )}
-        {proctorWarnings > 0 && proctorStatus.state !== "violating" && interviewStarted && !interviewEnded && (
-          <div className="absolute bottom-2 left-2 px-2 py-1 bg-red-500/90 rounded text-xs text-white flex items-center gap-1">
-            <AlertTriangle className="w-3.5 h-3.5" />
-            {proctorWarnings} warning{proctorWarnings === 1 ? "" : "s"}
-          </div>
-        )}
+          <p className="text-sm font-semibold text-[#FFF9F5]/90">Camera is turned off</p>
+          <p className="text-xs text-[#FFF9F5]/50 mt-1">Audio and text inputs are active</p>
+        </div>
+      )}
+
+      {/* Malpractice Warning Banner */}
+      {proctorStatus.state === "violating" && (
+        <div className="absolute top-4 left-4 right-4 z-30 px-4 py-2.5 bg-red-600/95 backdrop-blur-md text-white text-xs font-semibold rounded-xl flex items-center gap-2.5 animate-pulse shadow-xl">
+          <AlertTriangle className="w-4 h-4 shrink-0" />
+          <span>{PROCTOR_MESSAGES[proctorStatus.type] || "Malpractice alert: your face is not visible!"}</span>
+        </div>
+      )}
+
+      {/* REC Indicator Badge */}
+      {interviewStarted && !interviewEnded && (
+        <div className="absolute top-4 right-4 z-20 px-3 py-1 bg-red-600/90 backdrop-blur-md rounded-full text-xs font-semibold text-white flex items-center gap-1.5 shadow-md">
+          <span className="w-2 h-2 bg-white rounded-full animate-pulse" /> REC
+        </div>
+      )}
+
+      {/* Warnings count pill if any */}
+      {proctorWarnings > 0 && proctorStatus.state !== "violating" && interviewStarted && !interviewEnded && (
+        <div className="absolute top-4 left-4 z-20 px-3 py-1 bg-amber-500/90 backdrop-blur-md rounded-full text-xs font-semibold text-black flex items-center gap-1.5 shadow-md">
+          <AlertTriangle className="w-3.5 h-3.5" />
+          {proctorWarnings} warning{proctorWarnings === 1 ? "" : "s"}
+        </div>
+      )}
+
+      {/* Live Captions Subtitle Box over video */}
+      {interviewStarted && showCaptions && (isListening || liveTranscript) && (
+        <div className="absolute bottom-24 left-8 right-8 z-20 px-4 py-2.5 bg-black/85 backdrop-blur-md rounded-xl text-sm text-[#FFF9F5] text-center shadow-xl max-w-xl mx-auto">
+          {liveTranscript || <span className="text-[#FCE8DD] animate-pulse">Listening — speak your answer now…</span>}
+        </div>
+      )}
+
+      {/* Bottom-Left: "You" Candidate Tag */}
+      <div className="absolute bottom-4 left-4 z-20 px-3.5 py-1.5 bg-[#17120F]/85 backdrop-blur-md rounded-xl text-xs font-semibold text-[#FFF9F5] flex items-center gap-2 shadow-lg">
+        <span>You</span>
+        {videoEnabled && <span className="w-2 h-2 rounded-full bg-emerald-400" />}
       </div>
 
-      {/* AI interviewer panel */}
-      <div className="bg-gradient-to-br from-indigo-600 to-purple-700 rounded-xl overflow-hidden relative" style={{ aspectRatio: "4/3" }}>
-        <div className="w-full h-full flex items-center justify-center">
-          <div className="text-center">
-            <div className="w-24 h-24 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-3">
-              <span className="text-5xl">🤖</span>
-            </div>
-            <p className="text-white font-medium">AI Interviewer</p>
-            <p className="text-white/70 text-sm">HireRight</p>
+      {/* Picture-in-Picture (PiP) Floating AI Interviewer Card on Bottom-Right */}
+      <div className="absolute bottom-4 right-4 z-20 w-64 bg-gradient-to-br from-[#261D18]/95 via-[#201713]/95 to-[#18110E]/95 rounded-2xl p-3.5 shadow-2xl shadow-black/70 backdrop-blur-xl">
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 rounded-xl bg-[#D97757]/15 flex items-center justify-center text-2xl shadow-inner shrink-0">
+            🤖
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-xs font-bold text-[#FFF9F5] truncate">AI Interviewer</p>
+            <p className="text-[11px] text-[#C4B5AE] truncate">HireRight</p>
             {questionNumber > 0 && (
-              <p className="text-white/80 text-xs mt-2 font-medium">Q{questionNumber}/5</p>
-            )}
-            {interviewStarted && (
-              <span className={`inline-block mt-2 px-2 py-1 rounded-full text-[10px] font-bold ${
-                currentDifficulty === "easy" ? "bg-green-500/30 text-green-300 border border-green-500/50" :
-                currentDifficulty === "medium" ? "bg-yellow-500/30 text-yellow-300 border border-yellow-500/50" :
-                "bg-red-500/30 text-red-300 border border-red-500/50"
-              }`}>
-                {currentDifficulty.toUpperCase()}
-              </span>
+              <p className="text-[10px] text-[#FCE8DD] font-medium mt-0.5">Question {questionNumber}/5</p>
             )}
           </div>
+          {isAiSpeaking && (
+            <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-950/60 text-emerald-300 animate-pulse">
+              Speaking
+            </span>
+          )}
         </div>
-        {isAiSpeaking && (
-          <div className="absolute bottom-2 left-2 px-2 py-1 bg-black/50 rounded text-xs text-white">Speaking...</div>
-        )}
-        {interviewStarted && showCaptions && isAiSpeaking && lastAiMessage && (
-          <div className="absolute bottom-10 left-2 right-2 px-3 py-2 bg-black/70 backdrop-blur rounded-lg text-sm text-white text-center">
-            {lastAiMessage.content.length > 180 ? lastAiMessage.content.slice(0, 180) + "…" : lastAiMessage.content}
-          </div>
-        )}
+
+        {/* Captions Toggle & Status Row */}
+        <div className="mt-3 pt-2.5 border-t border-white/5 flex items-center justify-between text-[11px] text-[#C4B5AE]">
+          <span>AI Interviewer Captions</span>
+          <button
+            onClick={() => setShowCaptions && setShowCaptions(!showCaptions)}
+            className={`px-2.5 py-0.5 rounded-md text-[10px] font-semibold transition-all cursor-pointer ${
+              showCaptions
+                ? "bg-[#D97757] text-white shadow-xs"
+                : "bg-[#2C211B] text-[#C4B5AE] hover:bg-[#362A24]"
+            }`}
+          >
+            {showCaptions ? "On" : "Off"}
+          </button>
+        </div>
       </div>
     </div>
   );

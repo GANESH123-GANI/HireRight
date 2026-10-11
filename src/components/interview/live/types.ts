@@ -40,6 +40,7 @@ export interface VideoPanelsProps {
   interviewStarted: boolean;
   interviewEnded: boolean;
   showCaptions: boolean;
+  setShowCaptions?: (v: boolean) => void;
   isListening: boolean;
   liveTranscript: string;
   isAiSpeaking: boolean;

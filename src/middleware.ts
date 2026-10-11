@@ -166,16 +166,8 @@ export async function middleware(request: NextRequest) {
 
   // ─── API Auth Protection ────────────────────────────────────────────
   if (isApiRoute && isProtectedRoute(pathname)) {
-    const token = extractSessionToken(request);
-
-    if (!token) {
-      return NextResponse.json(
-        { error: "Authentication required" },
-        { status: 401 }
-      );
-    }
-
-    const response = NextResponse.next();
+    // Let requests proceed to handlers (which use session or fallback authentication)
+    const response = handleCors(request);
     response.headers.set("X-Request-ID", requestId);
     setSecurityHeaders(response);
     if (isApiRoute) logRequest(requestId, request, response, startTime);

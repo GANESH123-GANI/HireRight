@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { usePathname } from "next/navigation";
 import { MessageSquare, X } from "lucide-react";
 import toast from "react-hot-toast";
 
@@ -15,11 +16,16 @@ function getUserFromStorage() {
 }
 
 export default function FeedbackWidget() {
+  const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [type, setType] = useState("general");
   const [message, setMessage] = useState("");
   const [email, setEmail] = useState("");
   const [submitting, setSubmitting] = useState(false);
+
+  if (pathname?.startsWith("/interview/live") || pathname?.startsWith("/interview/room")) {
+    return null;
+  }
 
   const handleOpen = () => {
     const user = getUserFromStorage();

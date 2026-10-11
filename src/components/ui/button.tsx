@@ -3,23 +3,23 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#a78bfa] focus-visible:ring-offset-2 focus-visible:ring-offset-[#09090b] disabled:pointer-events-none disabled:opacity-50",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D97757] focus-visible:ring-offset-2 focus-visible:ring-offset-[#FFF9F5] disabled:pointer-events-none disabled:opacity-50 rounded-xl",
   {
     variants: {
       variant: {
         default:
-          "bg-[#a78bfa] text-[#09090b] border border-[#a78bfa] hover:bg-[#8b5cf6] hover:border-[#8b5cf6] hover:shadow-[0_0_24px_rgba(167,139,250,0.2)]",
+          "bg-[#D97757] text-white border border-[#D97757] hover:bg-[#B95F42] hover:border-[#B95F42] shadow-sm font-semibold",
         destructive:
-          "bg-[#ef4444] text-white border border-[#ef4444] hover:bg-[#dc2626] hover:border-[#dc2626]",
+          "bg-[#B91C1C] text-white border border-[#B91C1C] hover:bg-[#991B1B]",
         outline:
-          "bg-transparent text-[#a78bfa] border border-[#a78bfa] hover:bg-[#a78bfa] hover:text-[#09090b] hover:shadow-[0_0_24px_rgba(167,139,250,0.2)]",
+          "bg-white text-[#D97757] border border-[#EFE3DB] hover:bg-[#FCE8DD]/40 hover:border-[#D97757] shadow-sm",
         secondary:
-          "bg-transparent text-[#f5c542] border border-[#f5c542] hover:bg-[#f5c542] hover:text-[#09090b] hover:shadow-[0_0_24px_rgba(245,197,66,0.2)]",
+          "bg-[#FCE8DD] text-[#382A25] border border-[#EFE3DB] hover:bg-[#FCE8DD]/80",
         ghost:
-          "bg-transparent text-[#a1a1aa] border border-transparent hover:bg-[#18181b] hover:text-[#fafafa] hover:border-[#27272a]",
-        link: "text-[#a78bfa] underline-offset-4 hover:underline",
+          "bg-transparent text-[#81736C] border border-transparent hover:bg-[#FCE8DD]/30 hover:text-[#382A25]",
+        link: "text-[#D97757] underline-offset-4 hover:underline font-semibold",
         gold:
-          "bg-[#f5c542] text-[#09090b] border border-[#f5c542] hover:bg-[#e6b830] hover:border-[#e6b830] hover:shadow-[0_0_24px_rgba(245,197,66,0.2)]",
+          "bg-[#B45309] text-white border border-[#B45309] hover:bg-[#92400E] shadow-sm",
       },
       size: {
         default: "h-10 px-5 py-2",

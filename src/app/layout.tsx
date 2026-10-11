@@ -18,25 +18,26 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Techcitta - Talent to Talent",
-  description: "Your Journey to the Right Opportunity Starts Here. Background screening you can trust.",
+  title: "HireRight AI — Autonomous AI Video Interviews & MediaPipe Proctoring",
+  description: "Screen, interview, and evaluate candidates 10x faster with autonomous AI voice & video interviews, real-time MediaPipe anti-cheating proctoring, and automated skill scoring.",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "Techcitta",
+    title: "HireRight AI",
   },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#09090b",
+  themeColor: "#ffffff",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased light overflow-x-hidden`}
+      data-scroll-behavior="smooth"
       suppressHydrationWarning
     >
       <head>
@@ -44,20 +45,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           dangerouslySetInnerHTML={{
             __html: `
               try {
-                var t = localStorage.getItem('stitch-theme');
-                if (t === 'light' || t === 'dark') {
-                  document.documentElement.classList.add(t);
-                } else {
-                  document.documentElement.classList.add('dark');
-                }
-              } catch(e) {
-                document.documentElement.classList.add('dark');
-              }
+                localStorage.setItem('stitch-theme', 'light');
+                document.documentElement.classList.remove('dark');
+                document.documentElement.classList.add('light');
+              } catch(e) {}
             `,
           }}
         />
       </head>
-      <body className="min-h-full bg-background text-foreground" suppressHydrationWarning>
+      <body className="min-h-full bg-background text-foreground overflow-x-hidden w-full max-w-full" suppressHydrationWarning>
         <Providers>
           <ToastProvider />
           <CrispChat />

@@ -19,15 +19,15 @@ const SECTIONS = [
 
 function MethodBadge({ method }: { method: string }) {
   const colors: Record<string, string> = {
-    GET: "bg-green-500/20 text-green-400 border-green-500/30",
-    POST: "bg-blue-500/20 text-blue-400 border-blue-500/30",
-    PUT: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30",
-    DELETE: "bg-red-500/20 text-red-400 border-red-500/30",
-    PATCH: "bg-purple-500/20 text-purple-400 border-purple-500/30",
+    GET: "bg-emerald-50 text-[#15803D] border-emerald-200",
+    POST: "bg-[#FCE8DD] text-[#D97757] border-[#EFE3DB]",
+    PUT: "bg-amber-50 text-[#B45309] border-amber-200",
+    DELETE: "bg-red-50 text-[#B91C1C] border-red-200",
+    PATCH: "bg-purple-50 text-purple-700 border-purple-200",
   };
   return (
     <span
-      className={`inline-block px-2 py-0.5 text-xs font-bold rounded border ${colors[method] || colors.GET}`}
+      className={`inline-block px-2.5 py-0.5 text-xs font-bold rounded-lg border ${colors[method] || colors.GET}`}
     >
       {method}
     </span>
@@ -36,13 +36,13 @@ function MethodBadge({ method }: { method: string }) {
 
 function CodeBlock({ children, title }: { children: string; title?: string }) {
   return (
-    <div className="rounded-lg overflow-hidden border border-white/10">
+    <div className="rounded-xl overflow-hidden border border-[#EFE3DB]">
       {title && (
-        <div className="bg-gray-800 px-4 py-1.5 text-xs text-slate-400 font-mono border-b border-white/10">
+        <div className="bg-[#382A25] px-4 py-1.5 text-xs text-[#FCE8DD] font-mono border-b border-[#382A25]">
           {title}
         </div>
       )}
-      <pre className="bg-gray-900 text-green-400 p-4 text-sm overflow-x-auto font-mono leading-relaxed">
+      <pre className="bg-[#2A201B] text-[#FCE8DD] p-4 text-sm overflow-x-auto font-mono leading-relaxed">
         <code>{children}</code>
       </pre>
     </div>
@@ -63,17 +63,17 @@ function EndpointCard({
   children: React.ReactNode;
 }) {
   return (
-    <div className="bg-white/95 rounded-xl p-6 border border-slate-200">
+    <div className="bg-white rounded-2xl p-6 border border-[#EFE3DB] shadow-[0_8px_30px_rgb(56,42,37,0.06)]">
       <div className="flex items-center gap-3 mb-2 flex-wrap">
         <MethodBadge method={method} />
-        <code className="text-sm font-mono font-semibold text-gray-800">{path}</code>
+        <code className="text-sm font-mono font-bold text-[#382A25]">{path}</code>
         {auth !== false && (
-          <span className="text-xs bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full">
+          <span className="text-xs bg-[#FCE8DD] text-[#D97757] border border-[#EFE3DB] px-2.5 py-0.5 rounded-full font-semibold">
             Auth Required
           </span>
         )}
       </div>
-      <p className="text-sm text-gray-600 mb-4">{description}</p>
+      <p className="text-sm text-[#81736C] mb-4">{description}</p>
       {children}
     </div>
   );
@@ -84,21 +84,21 @@ function FieldTable({ fields }: { fields: { name: string; type: string; required
     <div className="overflow-x-auto">
       <table className="w-full text-sm text-left">
         <thead>
-          <tr className="border-b border-slate-200">
-            <th className="py-2 pr-4 font-semibold text-gray-700">Field</th>
-            <th className="py-2 pr-4 font-semibold text-gray-700">Type</th>
-            <th className="py-2 font-semibold text-gray-700">Description</th>
+          <tr className="border-b border-[#EFE3DB]">
+            <th className="py-2.5 pr-4 font-bold text-[#382A25]">Field</th>
+            <th className="py-2.5 pr-4 font-bold text-[#382A25]">Type</th>
+            <th className="py-2.5 font-bold text-[#382A25]">Description</th>
           </tr>
         </thead>
         <tbody>
           {fields.map((f) => (
-            <tr key={f.name} className="border-b border-slate-100 last:border-0">
-              <td className="py-2 pr-4 font-mono text-xs text-indigo-700 whitespace-nowrap">
+            <tr key={f.name} className="border-b border-[#EFE3DB]/60 last:border-0">
+              <td className="py-2.5 pr-4 font-mono text-xs font-semibold text-[#D97757] whitespace-nowrap">
                 {f.name}
-                {f.required && <span className="text-red-500 ml-0.5">*</span>}
+                {f.required && <span className="text-[#B91C1C] ml-0.5">*</span>}
               </td>
-              <td className="py-2 pr-4 text-xs text-gray-500">{f.type}</td>
-              <td className="py-2 text-xs text-gray-600">{f.desc}</td>
+              <td className="py-2.5 pr-4 text-xs text-[#81736C] font-mono">{f.type}</td>
+              <td className="py-2.5 text-xs text-[#81736C] leading-relaxed">{f.desc}</td>
             </tr>
           ))}
         </tbody>
@@ -111,14 +111,14 @@ export default function ApiDocsPage() {
   const [activeSection, setActiveSection] = useState("auth");
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900">
+    <div className="min-h-screen bg-[#FFF9F5]">
       <div className="flex">
         {/* Sidebar */}
-        <aside className="hidden lg:flex flex-col w-64 min-h-screen bg-[#1a1a2e] border-r border-white/10 sticky top-0 h-screen overflow-y-auto">
-          <div className="p-6 border-b border-white/10">
-            <h2 className="text-lg font-bold text-white">API Reference</h2>
-            <p className="text-xs text-slate-400 mt-1">v1.0 &middot; Base URL</p>
-            <code className="block mt-2 text-xs text-green-400 bg-black/30 rounded px-2 py-1 font-mono break-all">
+        <aside className="hidden lg:flex flex-col w-64 min-h-screen bg-white border-r border-[#EFE3DB] sticky top-0 h-screen overflow-y-auto">
+          <div className="p-6 border-b border-[#EFE3DB]">
+            <h2 className="text-lg font-bold text-[#382A25]">API Reference</h2>
+            <p className="text-xs text-[#81736C] mt-1">v1.0 &middot; Base URL</p>
+            <code className="block mt-2 text-xs text-[#D97757] bg-[#FCE8DD] border border-[#EFE3DB] rounded-lg px-2.5 py-1 font-mono break-all font-semibold">
               /api
             </code>
           </div>
@@ -130,10 +130,10 @@ export default function ApiDocsPage() {
                   setActiveSection(s.id);
                   document.getElementById(s.id)?.scrollIntoView({ behavior: "smooth" });
                 }}
-                className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
+                className={`w-full text-left px-3 py-2 rounded-xl text-sm transition-colors ${
                   activeSection === s.id
-                    ? "bg-indigo-600 text-white"
-                    : "text-slate-300 hover:bg-white/10"
+                    ? "bg-[#FCE8DD] text-[#D97757] font-semibold border-l-2 border-[#D97757]"
+                    : "text-[#81736C] hover:text-[#382A25] hover:bg-[#FCE8DD]/30 border-l-2 border-transparent"
                 }`}
               >
                 {s.label}
@@ -147,15 +147,15 @@ export default function ApiDocsPage() {
           {/* Header */}
           <div className="mb-12">
             <div className="flex items-center gap-3 flex-wrap">
-              <h1 className="text-4xl md:text-5xl font-bold text-white">
-                HireRight API Documentation
+              <h1 className="text-4xl md:text-5xl font-bold text-[#382A25] tracking-tight">
+                Techcitta API Documentation
               </h1>
-              <span className="bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 text-xs font-bold px-3 py-1 rounded-full">
+              <span className="bg-[#FCE8DD] text-[#D97757] border border-[#EFE3DB] text-xs font-bold px-3 py-1 rounded-full">
                 v1.0
               </span>
             </div>
-            <p className="text-slate-300 text-lg mt-4 max-w-2xl">
-              RESTful API for the HireRight AI interview platform. All endpoints
+            <p className="text-[#81736C] text-lg mt-3 max-w-2xl leading-relaxed">
+              RESTful API for the Techcitta AI interview platform. All endpoints
               return JSON and require JWT authentication unless noted.
             </p>
           </div>
@@ -170,10 +170,10 @@ export default function ApiDocsPage() {
                     setActiveSection(s.id);
                     document.getElementById(s.id)?.scrollIntoView({ behavior: "smooth" });
                   }}
-                  className={`whitespace-nowrap px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                  className={`whitespace-nowrap px-3.5 py-1.5 rounded-full text-xs font-semibold transition-colors ${
                     activeSection === s.id
-                      ? "bg-indigo-600 text-white"
-                      : "bg-white/10 text-slate-300 hover:bg-white/20"
+                      ? "bg-[#D97757] text-white shadow-xs"
+                      : "bg-white border border-[#EFE3DB] text-[#81736C] hover:bg-[#FCE8DD]/40"
                   }`}
                 >
                   {s.label}
@@ -187,8 +187,8 @@ export default function ApiDocsPage() {
 
             {/* ── Authentication ─────────────────────── */}
             <section id="auth">
-              <h2 className="text-2xl font-bold text-white mb-4">Authentication</h2>
-              <div className="bg-white/95 rounded-xl p-6 border border-slate-200 space-y-4 text-sm text-gray-700">
+              <h2 className="text-2xl font-bold text-[#382A25] mb-4">Authentication</h2>
+              <div className="bg-white rounded-2xl p-6 border border-[#EFE3DB] shadow-[0_8px_30px_rgb(56,42,37,0.06)] space-y-4 text-sm text-gray-700">
                 <p>
                   All authenticated endpoints require a <strong>JWT Bearer token</strong> in
                   the <code className="bg-slate-100 px-1 rounded font-mono text-xs">Authorization</code> header.
@@ -223,8 +223,8 @@ Content-Type: application/json
 
             {/* ── Rate Limits ────────────────────────── */}
             <section id="rate-limits">
-              <h2 className="text-2xl font-bold text-white mb-4">Rate Limits</h2>
-              <div className="bg-white/95 rounded-xl p-6 border border-slate-200">
+              <h2 className="text-2xl font-bold text-[#382A25] mb-4">Rate Limits</h2>
+              <div className="bg-white rounded-2xl p-6 border border-[#EFE3DB] shadow-[0_8px_30px_rgb(56,42,37,0.06)]">
                 <p className="text-sm text-gray-600 mb-4">
                   Rate limits are enforced per IP address and per user. Exceeding the limit
                   returns <code className="bg-slate-100 px-1 rounded font-mono text-xs">429 Too Many Requests</code>.
@@ -272,7 +272,7 @@ Content-Type: application/json
 
             {/* ── Auth Endpoints ─────────────────────── */}
             <section id="auth-api">
-              <h2 className="text-2xl font-bold text-white mb-4">Auth Endpoints</h2>
+              <h2 className="text-2xl font-bold text-[#382A25] mb-4">Auth Endpoints</h2>
               <div className="space-y-6">
 
                 {/* POST /api/auth/signup */}
@@ -375,7 +375,7 @@ Content-Type: application/json
 
             {/* ── Profile ────────────────────────────── */}
             <section id="profile">
-              <h2 className="text-2xl font-bold text-white mb-4">Profile</h2>
+              <h2 className="text-2xl font-bold text-[#382A25] mb-4">Profile</h2>
               <div className="space-y-6">
 
                 <EndpointCard method="GET" path="/api/profile" description="Fetch the authenticated user's profile with linked user data.">
@@ -447,7 +447,7 @@ Content-Type: application/json
 
             {/* ── Interview ──────────────────────────── */}
             <section id="interview">
-              <h2 className="text-2xl font-bold text-white mb-4">Interview</h2>
+              <h2 className="text-2xl font-bold text-[#382A25] mb-4">Interview</h2>
               <div className="space-y-6">
 
                 <EndpointCard method="GET" path="/api/interview" description="Fetch the authenticated user's scheduled interview.">
@@ -499,12 +499,12 @@ Content-Type: application/json
 
             {/* ── AI Interview ───────────────────────── */}
             <section id="ai-interview">
-              <h2 className="text-2xl font-bold text-white mb-4">AI Interview</h2>
-              <p className="text-sm text-slate-300 mb-4">
+              <h2 className="text-2xl font-bold text-[#382A25] mb-4">AI Interview</h2>
+              <p className="text-sm text-[#81736C] mb-4">
                 The AI interview engine is a single endpoint with three actions:{" "}
-                <code className="bg-white/10 px-1 rounded font-mono text-xs">start</code>,{" "}
-                <code className="bg-white/10 px-1 rounded font-mono text-xs">respond</code>, and{" "}
-                <code className="bg-white/10 px-1 rounded font-mono text-xs">evaluate</code>.
+                <code className="bg-[#FCE8DD] text-[#D97757] px-1.5 py-0.5 rounded font-mono text-xs font-semibold">start</code>,{" "}
+                <code className="bg-[#FCE8DD] text-[#D97757] px-1.5 py-0.5 rounded font-mono text-xs font-semibold">respond</code>, and{" "}
+                <code className="bg-[#FCE8DD] text-[#D97757] px-1.5 py-0.5 rounded font-mono text-xs font-semibold">evaluate</code>.
               </p>
 
               <div className="space-y-6">
@@ -595,7 +595,7 @@ Content-Type: application/json
 
             {/* ── Upload ─────────────────────────────── */}
             <section id="upload">
-              <h2 className="text-2xl font-bold text-white mb-4">Upload</h2>
+              <h2 className="text-2xl font-bold text-[#382A25] mb-4">Upload</h2>
               <EndpointCard
                 method="POST"
                 path="/api/upload"
@@ -653,7 +653,7 @@ Content-Type: application/json
 
             {/* ── Admin ──────────────────────────────── */}
             <section id="admin">
-              <h2 className="text-2xl font-bold text-white mb-4">Admin</h2>
+              <h2 className="text-2xl font-bold text-[#382A25] mb-4">Admin</h2>
               <div className="space-y-6">
                 <EndpointCard
                   method="GET"
@@ -714,7 +714,7 @@ Content-Type: application/json
 
             {/* ── Billing ────────────────────────────── */}
             <section id="billing">
-              <h2 className="text-2xl font-bold text-white mb-4">Billing</h2>
+              <h2 className="text-2xl font-bold text-[#382A25] mb-4">Billing</h2>
               <EndpointCard
                 method="POST"
                 path="/api/billing/checkout"
@@ -747,7 +747,7 @@ Content-Type: application/json
 
             {/* ── Account ────────────────────────────── */}
             <section id="account">
-              <h2 className="text-2xl font-bold text-white mb-4">Account</h2>
+              <h2 className="text-2xl font-bold text-[#382A25] mb-4">Account</h2>
               <div className="space-y-6">
 
                 <EndpointCard method="GET" path="/api/account/me" description="Get the current user&apos;s account info and organization details.">
@@ -818,8 +818,8 @@ Content-Type: application/json
 
             {/* ── Error Codes ────────────────────────── */}
             <section id="errors">
-              <h2 className="text-2xl font-bold text-white mb-4">Error Codes</h2>
-              <div className="bg-white/95 rounded-xl p-6 border border-slate-200">
+              <h2 className="text-2xl font-bold text-[#382A25] mb-4">Error Codes</h2>
+              <div className="bg-white rounded-2xl p-6 border border-[#EFE3DB] shadow-[0_8px_30px_rgb(56,42,37,0.06)]">
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm text-left">
                     <thead>
@@ -889,8 +889,8 @@ Content-Type: application/json
 
             {/* ── Webhooks ───────────────────────────── */}
             <section id="webhooks">
-              <h2 className="text-2xl font-bold text-white mb-4">Webhooks — Stripe Events</h2>
-              <div className="bg-white/95 rounded-xl p-6 border border-slate-200 space-y-4 text-sm text-gray-700">
+              <h2 className="text-2xl font-bold text-[#382A25] mb-4">Webhooks — Stripe Events</h2>
+              <div className="bg-white rounded-2xl p-6 border border-[#EFE3DB] shadow-[0_8px_30px_rgb(56,42,37,0.06)] space-y-4 text-sm text-gray-700">
                 <p>
                   Stripe sends webhook events to{" "}
                   <code className="bg-slate-100 px-1 rounded font-mono text-xs">POST /api/billing/webhook</code>.

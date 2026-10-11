@@ -1,256 +1,296 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowRight, Play, Shield, Zap, Lock, X, Sparkles, CheckCircle2, Building2, Users, TrendingUp } from "lucide-react";
-import { ShinyButton } from "@/components/ui/shiny-button";
+import { ArrowRight, Play, Rocket, ShieldCheck, Lock, X } from "lucide-react";
+import ScrollReveal from "@/components/ScrollReveal";
 
-function AnimatedCounter({ target, suffix = "" }: { target: number; suffix?: string }) {
-  const [count, setCount] = useState(0);
-
-  useEffect(() => {
-    const duration = 2000;
-    const steps = 60;
-    const increment = target / steps;
-    let current = 0;
-
-    const timer = setInterval(() => {
-      current += increment;
-      if (current >= target) {
-        setCount(target);
-        clearInterval(timer);
-      } else {
-        setCount(Math.floor(current));
-      }
-    }, duration / steps);
-
-    return () => clearInterval(timer);
-  }, [target]);
-
-  return (
-    <span className="tabular-nums">
-      {count.toLocaleString()}{suffix}
-    </span>
-  );
-}
+const heroCompanies = [
+  {
+    id: "tata",
+    node: (
+      <div className="flex items-center gap-1.5 font-bold tracking-wider text-[#0066B3] text-lg sm:text-xl select-none">
+        <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 5h2v2h-2V7zm-4 4h10v2H7v-2zm2 4h6v2H9v-2z"/>
+        </svg>
+        <span>TATA</span>
+      </div>
+    ),
+  },
+  {
+    id: "wipro",
+    node: (
+      <div className="flex items-center gap-2 text-slate-800 text-lg sm:text-xl select-none">
+        <span className="w-3.5 h-3.5 rounded-full bg-gradient-to-tr from-pink-500 via-amber-400 to-cyan-500 inline-block shadow-sm" />
+        <span className="font-semibold text-slate-800 tracking-tight">wipro</span>
+      </div>
+    ),
+  },
+  {
+    id: "infosys",
+    node: (
+      <div className="font-serif font-bold text-[#007CC3] text-xl sm:text-2xl tracking-normal select-none">
+        Infosys
+      </div>
+    ),
+  },
+  {
+    id: "accenture",
+    node: (
+      <div className="font-bold text-slate-900 text-lg sm:text-xl tracking-tight flex items-center select-none">
+        accenture<span className="text-[#A100FF] font-black ml-0.5">&gt;</span>
+      </div>
+    ),
+  },
+  {
+    id: "amazon",
+    node: (
+      <div className="flex flex-col items-center select-none">
+        <span className="font-bold text-slate-900 text-lg sm:text-xl tracking-tight leading-none">amazon</span>
+        <span className="text-[#FF9900] text-sm font-black tracking-widest leading-none -mt-0.5">&#x2323;</span>
+      </div>
+    ),
+  },
+  {
+    id: "deloitte",
+    node: (
+      <div className="font-bold text-slate-900 text-lg sm:text-xl tracking-tight select-none">
+        Deloitte<span className="text-[#86BC25] font-black">.</span>
+      </div>
+    ),
+  },
+  {
+    id: "google",
+    node: (
+      <div className="font-bold text-lg sm:text-xl tracking-tight flex items-center gap-0.5 select-none">
+        <span className="text-[#4285F4]">G</span>
+        <span className="text-[#EA4335]">o</span>
+        <span className="text-[#FBBC05]">o</span>
+        <span className="text-[#4285F4]">g</span>
+        <span className="text-[#34A853]">l</span>
+        <span className="text-[#EA4335]">e</span>
+      </div>
+    ),
+  },
+  {
+    id: "microsoft",
+    node: (
+      <div className="flex items-center gap-2 font-semibold text-slate-800 text-lg sm:text-xl select-none">
+        <div className="grid grid-cols-2 gap-0.5 w-4 h-4">
+          <span className="bg-[#F25022] w-1.5 h-1.5 rounded-[1px]" />
+          <span className="bg-[#7FBA00] w-1.5 h-1.5 rounded-[1px]" />
+          <span className="bg-[#00A4EF] w-1.5 h-1.5 rounded-[1px]" />
+          <span className="bg-[#FFB900] w-1.5 h-1.5 rounded-[1px]" />
+        </div>
+        <span>Microsoft</span>
+      </div>
+    ),
+  },
+  {
+    id: "tcs",
+    node: (
+      <div className="font-black text-lg sm:text-xl tracking-wider text-[#0066B3] select-none">
+        TCS
+      </div>
+    ),
+  },
+  {
+    id: "hsbc",
+    node: (
+      <div className="flex items-center gap-1.5 font-bold text-slate-900 text-lg sm:text-xl select-none">
+        <span className="text-[#DB0011] text-xs font-black">▲▼</span>
+        <span>HSBC</span>
+      </div>
+    ),
+  },
+];
 
 export default function Hero() {
   const [showVideo, setShowVideo] = useState(false);
-  const [imgError, setImgError] = useState(false);
   const router = useRouter();
 
   return (
-    <section className="relative bg-background overflow-hidden min-h-[90vh] flex items-center">
-      {/* Refined ambient gradients */}
-      <div className="absolute inset-0">
-        <div className="absolute top-0 left-1/4 w-[800px] h-[800px] bg-primary/[0.03] rounded-full blur-[160px]" />
-        <div className="absolute bottom-0 right-1/4 w-[600px] h-[600px] bg-secondary/[0.02] rounded-full blur-[120px]" />
-        {/* Subtle grid overlay */}
-        <div className="absolute inset-0 bg-grid-pattern opacity-30" />
-      </div>
+    <section className="bg-[#FFF9F5] w-full pt-20 sm:pt-24 pb-12 sm:pb-16 px-3 sm:px-6 lg:px-8 overflow-hidden">
+      <div className="max-w-7xl mx-auto w-full">
+        {/* Contained Hero - Warm Light Cream Box with Soft Peach Accents */}
+        <div className="relative bg-gradient-to-br from-[#FFF9F5] via-[#FCE8DD]/40 to-[#FFF9F5] rounded-3xl overflow-hidden pt-10 sm:pt-14 lg:pt-16 pb-16 sm:pb-20 lg:pb-24 px-5 sm:px-8 lg:px-12 border border-[#EFE3DB] shadow-lg">
+          {/* Subtle Warm Amber & Peach Ambience */}
+          <div className="absolute inset-0 pointer-events-none overflow-hidden">
+            {/* Orb 1: Soft Peach Glow */}
+            <div className="animate-orb-1 absolute -top-20 -left-10 w-[500px] h-[500px] rounded-full bg-gradient-to-tr from-[#D97757]/15 via-[#FCE8DD]/30 to-transparent blur-[100px]" />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-28 relative w-full">
-        <div className="grid lg:grid-cols-2 gap-16 lg:gap-20 items-center">
-          {/* Left - Content */}
-          <div className="max-w-xl">
-            {/* Enterprise badge */}
-            <div className="inline-flex items-center gap-2.5 px-4 py-2 mb-8 rounded-full bg-surface border border-border">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-success opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-success"></span>
-              </span>
-              <span className="text-sm text-muted-foreground font-medium">Trusted by 1,200+ enterprises globally</span>
-            </div>
+            {/* Orb 2: Warm Sand Aura */}
+            <div className="animate-orb-2 absolute top-1/4 right-0 w-[540px] h-[540px] rounded-full bg-gradient-to-br from-[#FCE8DD]/35 via-[#EFE3DB]/30 to-transparent blur-[110px]" />
 
-            {/* Headline - Bolder, more impactful */}
-            <h1 className="text-[3.25rem] lg:text-[4.5rem] font-bold leading-[1.05] tracking-[-0.02em]">
-              <span className="text-foreground">Hire with</span>
-              <br />
-              <span className="text-foreground">confidence.</span>
-              <br />
-              <span className="bg-gradient-to-r from-primary via-primary to-secondary bg-clip-text text-transparent">
-                Verify with certainty.
-              </span>
-            </h1>
+            {/* Orb 3: Terracotta Ambience */}
+            <div className="animate-orb-3 absolute -bottom-24 left-1/3 w-[500px] h-[500px] rounded-full bg-gradient-to-tl from-[#D97757]/10 via-[#FCE8DD]/20 to-transparent blur-[100px]" />
 
-            {/* Subtitle - Clearer enterprise value */}
-            <p className="mt-8 text-lg text-muted-foreground max-w-md leading-[1.7]">
-              AI-powered background screening and talent verification platform built for enterprises that make hiring decisions at scale.
-            </p>
-
-            {/* CTA buttons */}
-            <div className="mt-10 flex flex-wrap gap-4">
-              <ShinyButton onClick={() => router.push("/signup")}>
-                Start Free Trial
-                <ArrowRight className="w-4 h-4" />
-              </ShinyButton>
-              <button
-                onClick={() => setShowVideo(true)}
-                className="inline-flex items-center gap-2.5 bg-transparent border border-border text-foreground px-8 py-4 font-medium rounded-lg hover:bg-surface hover:border-primary/30 transition-all duration-300 text-sm"
-              >
-                <div className="w-7 h-7 border border-border rounded-md flex items-center justify-center bg-surface">
-                  <Play className="w-3.5 h-3.5 ml-0.5 text-primary" />
-                </div>
-                Watch 2-min demo
-              </button>
-            </div>
-
-            {/* Enterprise metrics bar */}
-            <div className="mt-14 grid grid-cols-3 gap-8">
-              <div>
-                <p className="text-3xl lg:text-4xl font-bold text-foreground tracking-tight">
-                  <AnimatedCounter target={10} suffix="M+" />
-                </p>
-                <p className="text-sm text-muted-foreground mt-1.5">Verified candidates</p>
-              </div>
-              <div>
-                <p className="text-3xl lg:text-4xl font-bold text-foreground tracking-tight">
-                  <AnimatedCounter target={99} suffix=".7%" />
-                </p>
-                <p className="text-sm text-muted-foreground mt-1.5">Accuracy rate</p>
-              </div>
-              <div>
-                <p className="text-3xl lg:text-4xl font-bold text-foreground tracking-tight">
-                  <AnimatedCounter target={48} suffix="hr" />
-                </p>
-                <p className="text-sm text-muted-foreground mt-1.5">Avg. turnaround</p>
-              </div>
-            </div>
+            {/* Subtle Grid Pattern Overlay */}
+            <div className="absolute inset-0 bg-grid-pattern opacity-5" />
           </div>
 
-          {/* Right - Product Preview */}
-          <div className="relative hidden lg:block">
-            {/* Main product card */}
-            <div className="relative w-full h-[560px] bg-surface border border-border overflow-hidden rounded-2xl shadow-2xl">
-              {/* Top bar */}
-              <div className="flex items-center justify-between px-5 py-3.5 border-b border-border bg-background">
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-destructive/80" />
-                  <div className="w-3 h-3 rounded-full bg-warning/80" />
-                  <div className="w-3 h-3 rounded-full bg-success/80" />
-                </div>
-                <div className="flex items-center gap-2 px-3 py-1.5 bg-surface rounded-md border border-border">
-                  <Lock className="w-3 h-3 text-success" />
-                  <span className="text-xs text-muted-foreground font-mono">app.techcitta.com/dashboard</span>
-                </div>
-                <div className="w-7 h-7 rounded-full bg-gradient-to-br from-primary to-primary-hover flex items-center justify-center">
-                  <span className="text-[10px] font-bold text-primary-foreground">TC</span>
-                </div>
+          <div className="relative z-10 w-full">
+            <div className="grid lg:grid-cols-12 gap-10 lg:gap-8 items-center">
+              
+              {/* Left Column - Content */}
+              <div className="lg:col-span-6 xl:col-span-6 flex flex-col justify-center">
+                {/* Headline matching reference with entry animation */}
+                <ScrollReveal delay={60} direction="up" duration={700}>
+                  <h1 className="text-4xl sm:text-5xl lg:text-[3.85rem] font-extrabold leading-[1.08] tracking-tight text-[#382A25]">
+                    Your Dream Job <br />
+                    Deserves the <br />
+                    <span className="text-[#D97757]">Right</span> Start.
+                  </h1>
+                </ScrollReveal>
+
+                {/* Subtitle with entry animation */}
+                <ScrollReveal delay={180} direction="up" duration={700}>
+                  <p className="mt-6 text-base sm:text-lg text-[#81736C] max-w-lg leading-relaxed font-normal">
+                    Background screening and autonomous AI interviews you can trust. Confidence you can carry into your future.
+                  </p>
+                </ScrollReveal>
+
+                {/* CTA Buttons with entry animation matching reference */}
+                <ScrollReveal delay={300} direction="up" duration={700}>
+                  <div className="mt-8 flex flex-wrap items-center gap-4 sm:gap-5">
+                    <button
+                      onClick={() => router.push("/signup")}
+                      className="group btn-gradient-pill inline-flex items-center gap-4 text-white px-8 py-3.5 sm:px-9 sm:py-4 rounded-full font-bold text-base sm:text-lg tracking-tight cursor-pointer"
+                    >
+                      <span className="drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)]">Get Started</span>
+                      <span className="w-9 h-9 sm:w-10 sm:h-10 rounded-full btn-arrow-bubble flex items-center justify-center group-hover:translate-x-0.5 transition-transform duration-200">
+                        <ArrowRight className="w-4.5 h-4.5 sm:w-5 sm:h-5 text-white stroke-[2.5]" />
+                      </span>
+                    </button>
+
+                    <button
+                      onClick={() => setShowVideo(true)}
+                      className="inline-flex items-center gap-3 bg-white hover:bg-[#FCE8DD]/40 text-[#382A25] border border-[#EFE3DB] px-7 py-3.5 rounded-full font-semibold text-sm sm:text-base shadow-sm transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
+                    >
+                      <span>How It Works</span>
+                      <span className="w-6 h-6 rounded-full bg-[#FCE8DD] text-[#D97757] flex items-center justify-center">
+                        <Play className="w-3 h-3 ml-0.5 fill-current" />
+                      </span>
+                    </button>
+                  </div>
+                </ScrollReveal>
+
+                {/* Social Proof */}
+                <ScrollReveal delay={420} direction="up" duration={700}>
+                  <div className="mt-8 sm:mt-10">
+                    <p className="text-xs sm:text-sm text-[#81736C] font-medium leading-relaxed">
+                      <span className="text-[#382A25] font-semibold">Trusted by 1000+ employers</span>{" "}
+                      and millions of job seekers worldwide.
+                    </p>
+                  </div>
+                </ScrollReveal>
               </div>
 
-              {/* Dashboard content */}
-              <div className="p-5">
-                {/* Welcome header */}
-                <div className="flex items-center justify-between mb-6">
+          {/* Right Column - Candidate with Glowing Tech Circle and 3 Floating Cards */}
+          <div className="lg:col-span-6 xl:col-span-6 relative flex justify-center items-center">
+            {/* Glowing Tech Radar / Orbit Halo */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[340px] h-[340px] sm:w-[460px] sm:h-[460px] rounded-full border border-[#D97757]/20 pointer-events-none animate-pulse" />
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[420px] h-[420px] sm:w-[540px] sm:h-[540px] rounded-full border border-dashed border-[#D97757]/15 pointer-events-none" />
+
+            {/* Candidate Image Container */}
+            <div className="relative z-10 w-full max-w-[360px] sm:max-w-[420px] lg:max-w-[450px]">
+              <div className="relative rounded-3xl overflow-hidden shadow-xl border border-[#EFE3DB] bg-white aspect-[4/3] sm:aspect-[4/3.2]">
+                <img
+                  src="/hero-candidate.jpg"
+                  alt="Young candidate holding laptop"
+                  className="w-full h-full object-cover object-top"
+                />
+              </div>
+            </div>
+
+            {/* 3 Floating Badges matching the reference */}
+            <div className="absolute -right-2 sm:-right-4 lg:-right-6 top-6 sm:top-8 z-20 flex flex-col gap-3.5 sm:gap-4 max-w-[210px] sm:max-w-[240px]">
+              {/* Card 1 - Fast & Secure */}
+              <ScrollReveal delay={200} direction="left">
+                <div
+                  className="bg-white text-[#382A25] rounded-2xl p-2.5 sm:p-3 shadow-lg hover:shadow-2xl border border-[#EFE3DB] flex items-center gap-3 backdrop-blur-md animate-float cursor-pointer hover:scale-105 transition-all duration-300"
+                  style={{ animationDelay: "0s" }}
+                >
+                  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#FCE8DD] text-[#D97757] flex items-center justify-center flex-shrink-0 shadow-xs">
+                    <Rocket className="w-4 h-4 sm:w-5 sm:h-5 text-[#D97757]" />
+                  </div>
                   <div>
-                    <p className="text-sm text-muted-foreground">Good morning,</p>
-                    <p className="text-lg font-semibold text-foreground">HSBC Talent Team</p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="px-3 py-1.5 bg-success/10 text-success text-xs font-medium rounded-full border border-success/20">Enterprise</span>
+                    <p className="text-xs sm:text-sm font-bold text-[#382A25] leading-tight">Fast &amp; Secure</p>
+                    <p className="text-[10px] sm:text-[11px] text-[#81736C] mt-0.5 leading-tight">Quick turnaround you can rely on</p>
                   </div>
                 </div>
+              </ScrollReveal>
 
-                {/* Stats grid */}
-                <div className="grid grid-cols-3 gap-3 mb-5">
-                  {[
-                    { label: "Active Candidates", value: "2,847", change: "+12%", color: "primary" },
-                    { label: "Verified Today", value: "156", change: "+8%", color: "success" },
-                    { label: "Pending Review", value: "43", change: "-5%", color: "warning" },
-                  ].map((stat) => (
-                    <div key={stat.label} className="bg-background border border-border rounded-lg p-3">
-                      <p className="text-[11px] text-muted-foreground mb-1">{stat.label}</p>
-                      <p className="text-xl font-bold text-foreground">{stat.value}</p>
-                      <p className={`text-[10px] mt-1 text-${stat.color}`}>{stat.change} this week</p>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Candidate list */}
-                <div className="bg-background border border-border rounded-lg overflow-hidden">
-                  <div className="px-4 py-3 border-b border-border flex items-center justify-between">
-                    <p className="text-sm font-medium text-foreground">Recent Verifications</p>
-                    <span className="text-[11px] text-primary">View all</span>
+              {/* Card 2 - Trusted by */}
+              <ScrollReveal delay={350} direction="left">
+                <div
+                  className="bg-white text-[#382A25] rounded-2xl p-2.5 sm:p-3 shadow-lg hover:shadow-2xl border border-[#EFE3DB] flex items-center gap-3 backdrop-blur-md animate-float-delayed cursor-pointer hover:scale-105 transition-all duration-300"
+                  style={{ animationDelay: "1.2s" }}
+                >
+                  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#DCFCE7] text-[#15803D] flex items-center justify-center flex-shrink-0 shadow-xs">
+                    <ShieldCheck className="w-4 h-4 sm:w-5 sm:h-5 text-[#15803D]" />
                   </div>
-                  {[
-                    { name: "Priya Sharma", role: "Sr. Software Engineer", status: "Verified", score: 98 },
-                    { name: "Rahul Mehta", role: "Product Manager", status: "In Progress", score: null },
-                    { name: "Ananya Patel", role: "Data Scientist", status: "Verified", score: 95 },
-                  ].map((candidate, i) => (
-                    <div key={i} className="flex items-center justify-between px-4 py-3 border-b border-border last:border-0 hover:bg-surface transition-colors">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary/20 to-primary-hover/20 flex items-center justify-center text-[11px] font-semibold text-primary">
-                          {candidate.name.split(' ').map(n => n[0]).join('')}
-                        </div>
-                        <div>
-                          <p className="text-sm font-medium text-foreground">{candidate.name}</p>
-                          <p className="text-[11px] text-muted-foreground">{candidate.role}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        {candidate.score && (
-                          <span className="text-sm font-semibold text-primary">{candidate.score}</span>
-                        )}
-                        <span className={`text-[10px] font-medium px-2 py-1 rounded-full ${
-                          candidate.status === 'Verified'
-                            ? 'bg-success/10 text-success border border-success/20'
-                            : 'bg-warning/10 text-warning border border-warning/20'
-                        }`}>
-                          {candidate.status}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
+                  <div>
+                    <p className="text-xs sm:text-sm font-bold text-[#382A25] leading-tight">Trusted by</p>
+                    <p className="text-[10px] sm:text-[11px] text-[#81736C] mt-0.5 leading-tight">Top Employers globally</p>
+                  </div>
                 </div>
-              </div>
+              </ScrollReveal>
 
-              {/* Gradient overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent pointer-events-none" />
+              {/* Card 3 - Your Privacy */}
+              <ScrollReveal delay={500} direction="left">
+                <div
+                  className="bg-white text-[#382A25] rounded-2xl p-2.5 sm:p-3 shadow-lg hover:shadow-2xl border border-[#EFE3DB] flex items-center gap-3 backdrop-blur-md animate-float-slow cursor-pointer hover:scale-105 transition-all duration-300"
+                  style={{ animationDelay: "2.4s" }}
+                >
+                  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#FCE8DD] text-[#D97757] flex items-center justify-center flex-shrink-0 shadow-xs">
+                    <Lock className="w-4 h-4 sm:w-5 sm:h-5 text-[#D97757]" />
+                  </div>
+                  <div>
+                    <p className="text-xs sm:text-sm font-bold text-[#382A25] leading-tight">Your Privacy</p>
+                    <p className="text-[10px] sm:text-[11px] text-[#81736C] mt-0.5 leading-tight">Always Protected</p>
+                  </div>
+                </div>
+              </ScrollReveal>
             </div>
 
-            {/* Floating card 1 - Security */}
-            <div
-              className="absolute -top-4 -right-4 bg-surface border border-border p-4 flex items-center gap-3 rounded-xl shadow-xl animate-float"
-              style={{ animationDelay: "0s" }}
-            >
-              <div className="w-10 h-10 bg-success/10 flex items-center justify-center rounded-lg border border-success/20">
-                <Shield className="w-5 h-5 text-success" />
-              </div>
-              <div>
-                <p className="text-sm font-semibold text-foreground">SOC 2 Compliant</p>
-                <p className="text-[11px] text-muted-foreground">Enterprise-grade security</p>
-              </div>
-            </div>
-
-            {/* Floating card 2 - Speed */}
-            <div
-              className="absolute top-1/2 -right-6 bg-surface border border-border p-4 flex items-center gap-3 rounded-xl shadow-xl animate-float"
-              style={{ animationDelay: "1.5s" }}
-            >
-              <div className="w-10 h-10 bg-primary/10 flex items-center justify-center rounded-lg border border-primary/20">
-                <Zap className="w-5 h-5 text-primary" />
-              </div>
-              <div>
-                <p className="text-sm font-semibold text-foreground">48hr Turnaround</p>
-                <p className="text-[11px] text-muted-foreground">Industry-leading speed</p>
-              </div>
-            </div>
-
-            {/* Floating card 3 - Scale */}
-            <div
-              className="absolute -bottom-4 left-1/4 bg-surface border border-border p-4 flex items-center gap-3 rounded-xl shadow-xl animate-float"
-              style={{ animationDelay: "3s" }}
-            >
-              <div className="w-10 h-10 bg-secondary/10 flex items-center justify-center rounded-lg border border-secondary/20">
-                <TrendingUp className="w-5 h-5 text-secondary" />
-              </div>
-              <div>
-                <p className="text-sm font-semibold text-foreground">99.7% Accuracy</p>
-                <p className="text-[11px] text-muted-foreground">AI-verified results</p>
-              </div>
-            </div>
           </div>
         </div>
+
+          </div>
+        </div>
+
+        {/* Logos Marquee Card - Centered directly in the middle on the bottom border of the Hero section */}
+        <ScrollReveal delay={100} direction="up" className="relative z-30 -mt-12 sm:-mt-16 lg:-mt-20 max-w-6xl mx-auto px-2 sm:px-4">
+          <div className="marquee-container bg-white rounded-2xl sm:rounded-3xl shadow-xl shadow-[#382A25]/8 border border-[#EFE3DB] p-5 sm:p-7 w-full overflow-hidden">
+            <p className="text-center text-xs sm:text-sm font-bold text-[#382A25] tracking-tight mb-5">
+              Powering Confident Hiring Decisions for Top Companies
+            </p>
+
+            <div className="relative overflow-hidden w-full py-1.5">
+              {/* Left and Right Smooth Fade Edge Masks */}
+              <div className="absolute left-0 top-0 bottom-0 w-16 sm:w-28 bg-gradient-to-r from-white via-white/80 to-transparent z-10 pointer-events-none" />
+              <div className="absolute right-0 top-0 bottom-0 w-16 sm:w-28 bg-gradient-to-l from-white via-white/80 to-transparent z-10 pointer-events-none" />
+
+              {/* Scrolling track moving from left to right, looping seamlessly, pauses on hover */}
+              <div className="flex w-max items-center animate-marquee-ltr hover:[animation-play-state:paused]">
+                {/* 4 duplicates with dividers matching the reference image */}
+                {[...heroCompanies, ...heroCompanies, ...heroCompanies, ...heroCompanies].map((company, index) => (
+                  <div
+                    key={`${company.id}-${index}`}
+                    className="flex-shrink-0 flex items-center"
+                  >
+                    <div className="px-6 sm:px-9 flex items-center justify-center transition-transform hover:scale-105 duration-200 cursor-pointer">
+                      {company.node}
+                    </div>
+                    {/* Subtle vertical divider between logos matching reference */}
+                    <div className="h-6 w-px bg-[#EFE3DB] shrink-0" aria-hidden="true" />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </ScrollReveal>
       </div>
 
       {/* Video Modal */}
@@ -259,17 +299,16 @@ export default function Hero() {
           <div className="relative w-full max-w-4xl">
             <button
               onClick={() => setShowVideo(false)}
-              className="absolute -top-12 right-0 w-10 h-10 bg-surface border border-border rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-primary/30 transition-all duration-200"
+              className="absolute -top-12 right-0 w-10 h-10 bg-white/10 border border-white/20 rounded-lg flex items-center justify-center text-slate-300 hover:text-white hover:bg-white/20 transition-all duration-200"
             >
               <X className="w-5 h-5" />
             </button>
-            <div className="bg-surface border border-border overflow-hidden rounded-xl">
+            <div className="bg-slate-900 border border-slate-800 overflow-hidden rounded-2xl shadow-2xl aspect-video flex items-center justify-center">
               <video
-                className="w-full aspect-video"
+                className="w-full h-full object-cover"
                 src="/videos/demo.mp4"
                 controls
                 autoPlay
-                muted
               />
             </div>
           </div>

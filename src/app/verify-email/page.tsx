@@ -75,29 +75,37 @@ function VerifyEmailContent() {
   };
 
   return (
-    <div className="min-h-screen bg-[#09090b] flex items-center justify-center p-4 relative overflow-hidden">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(167,139,250,0.05)_0%,transparent_50%)]" />
+    <div className="min-h-screen bg-[#FFF9F5] flex items-center justify-center p-4 relative overflow-hidden">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(217,119,87,0.06)_0%,transparent_60%)]" />
 
       <div className="w-full max-w-md relative z-10">
         <Link href="/" className="flex items-center justify-center mb-8 group">
           <div className="flex items-center gap-3">
-            <Shield className="w-8 h-8 text-[#a78bfa]" />
-            <span className="text-2xl font-bold text-[#fafafa]">Techcitta</span>
+            <div className="w-10 h-10 rounded-xl bg-[#FCE8DD] flex items-center justify-center border border-[#EFE3DB]">
+              <Shield className="w-5 h-5 text-[#D97757]" />
+            </div>
+            <span className="text-2xl font-bold text-[#382A25] tracking-tight">Techcitta</span>
           </div>
         </Link>
 
-        <div className="bg-[rgba(24,24,27,0.6)] backdrop-blur-xl border border-[#27272a] rounded-xl p-8 text-center">
+        <div className="bg-white border border-[#EFE3DB] shadow-[0_8px_30px_rgb(56,42,37,0.06)] rounded-2xl p-8 text-center">
           <div className="mb-4 flex justify-center">
             {status === "success" ? (
-              <CheckCircle className="w-16 h-16 text-[#4ade80]" />
+              <div className="w-16 h-16 rounded-full bg-emerald-50 flex items-center justify-center border border-emerald-100">
+                <CheckCircle className="w-8 h-8 text-[#15803D]" />
+              </div>
             ) : status === "error" ? (
-              <XCircle className="w-16 h-16 text-[#ef4444]" />
+              <div className="w-16 h-16 rounded-full bg-red-50 flex items-center justify-center border border-red-100">
+                <XCircle className="w-8 h-8 text-[#B91C1C]" />
+              </div>
             ) : (
-              <Mail className="w-16 h-16 text-[#a78bfa]" />
+              <div className="w-16 h-16 rounded-full bg-[#FCE8DD] flex items-center justify-center border border-[#EFE3DB]">
+                <Mail className="w-8 h-8 text-[#D97757]" />
+              </div>
             )}
           </div>
 
-          <h1 className="text-2xl font-bold text-[#fafafa] mb-2">
+          <h1 className="text-2xl font-bold text-[#382A25] mb-2">
             {status === "success"
               ? "Email Verified!"
               : status === "error"
@@ -105,7 +113,7 @@ function VerifyEmailContent() {
               : "Check Your Inbox"}
           </h1>
 
-          <p className="text-[#a1a1aa] mb-6">
+          <p className="text-[#81736C] mb-6 text-sm">
             {status === "verifying"
               ? "Verifying your email..."
               : status === "success"
@@ -120,18 +128,18 @@ function VerifyEmailContent() {
               <button
                 onClick={handleResend}
                 disabled={resending}
-                className="w-full bg-[#a78bfa] text-[#09090b] py-3 rounded-lg font-medium hover:bg-[#8b5cf6] transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                className="w-full bg-[#D97757] text-white py-3 rounded-xl font-semibold hover:bg-[#B95F42] transition-colors flex items-center justify-center gap-2 shadow-sm disabled:opacity-50"
               >
                 <RefreshCw className={`w-4 h-4 ${resending ? "animate-spin" : ""}`} />
                 {resending ? "Sending..." : "Resend Verification Email"}
               </button>
 
               {verifyUrl && (
-                <div className="mt-4 p-3 bg-[#18181b] border border-[#27272a] rounded-lg">
-                  <p className="text-[#a1a1aa] text-xs mb-2">Direct verification link (email not configured):</p>
+                <div className="mt-4 p-3 bg-[#FFF9F5] border border-[#EFE3DB] rounded-xl text-left">
+                  <p className="text-[#81736C] text-xs mb-1.5 font-medium">Direct verification link (email not configured):</p>
                   <a
                     href={verifyUrl}
-                    className="text-[#a78bfa] text-sm break-all hover:underline"
+                    className="text-[#D97757] text-xs break-all hover:underline font-mono"
                   >
                     {verifyUrl}
                   </a>
@@ -142,11 +150,11 @@ function VerifyEmailContent() {
 
           <div className="mt-6">
             {status === "success" ? (
-              <Link href="/login" className="w-full bg-[#a78bfa] text-[#09090b] py-3 rounded-lg font-medium hover:bg-[#8b5cf6] transition-colors flex items-center justify-center">
+              <Link href="/login" className="w-full bg-[#D97757] text-white py-3 rounded-xl font-semibold hover:bg-[#B95F42] transition-colors flex items-center justify-center shadow-sm">
                 Go to Sign In
               </Link>
             ) : (
-              <Link href="/login" className="text-[#f5c542] font-medium hover:text-[#f5c542]/80">
+              <Link href="/login" className="text-[#D97757] font-semibold hover:text-[#B95F42] text-sm">
                 Go to Sign In
               </Link>
             )}
@@ -161,8 +169,8 @@ export default function VerifyEmailPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen flex items-center justify-center bg-[#09090b]">
-          <div className="animate-spin h-8 w-8 border-4 border-[#a78bfa] border-t-transparent rounded-full" />
+        <div className="min-h-screen flex items-center justify-center bg-[#FFF9F5]">
+          <div className="animate-spin h-8 w-8 border-4 border-[#D97757] border-t-transparent rounded-full" />
         </div>
       }
     >

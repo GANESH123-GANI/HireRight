@@ -1,5 +1,13 @@
 "use client";
 
+import { Plus_Jakarta_Sans } from "next/font/google";
+
+const plusJakarta = Plus_Jakarta_Sans({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800"],
+  display: "swap",
+});
+
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Sidebar from "@/components/Sidebar";
@@ -7,15 +15,16 @@ import StepIndicator from "@/components/StepIndicator";
 import { useAuth } from "@/contexts/AuthContext";
 import { timezoneLabel } from "@/lib/timezone";
 import { to24HourTime } from "@/lib/time";
-import { ChevronLeft, ChevronRight, CheckCircle, Clock, Lock, ArrowLeft, ArrowRight, Shield, Calendar, Video, Info } from "lucide-react";
+import { ChevronLeft, ChevronRight, CheckCircle, Clock, Lock, ArrowLeft, ArrowRight, Shield, Calendar, Video, Info, LogOut } from "lucide-react";
+import LogoutConfirmModal from "@/components/LogoutConfirmModal";
+import UserDropdown from "@/components/UserDropdown";
 
 const steps = [
   { number: 1, label: "Profile", sublabel: "Tell us who you are" },
   { number: 2, label: "Resume", sublabel: "Your expertise" },
-  { number: 3, label: "About You", sublabel: "What you're looking for" },
-  { number: 4, label: "Availability", sublabel: "Let's get you ready" },
-  { number: 5, label: "AI Interview", sublabel: "Let's get you ready" },
-  { number: 6, label: "All Set!", sublabel: "You're all set!" },
+  { number: 3, label: "Skills & Projects", sublabel: "Your experience & tech stacks" },
+  { number: 4, label: "AI Interview", sublabel: "Schedule assessment" },
+  { number: 5, label: "All Set!", sublabel: "You're all set!" },
 ];
 
 const timeSlots = {
@@ -26,12 +35,13 @@ const timeSlots = {
 
 export default function InterviewSchedulePage() {
   const router = useRouter();
-  const { user, token } = useAuth();
+  const { user, token, logout } = useAuth();
   const [currentStep, setCurrentStep] = useState(4);
   const [selectedTime, setSelectedTime] = useState("01:30 PM");
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [timezone, setTimezone] = useState("Asia/Kolkata");
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   useEffect(() => {
     if (!token) return;
@@ -171,85 +181,92 @@ export default function InterviewSchedulePage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row bg-[#09090b]">
+    <div className={`h-screen w-full overflow-hidden flex flex-col lg:flex-row bg-white ${plusJakarta.className}`}>
       <Sidebar currentStep={currentStep} progress={progress} />
-      <main className="flex-1 bg-[#09090b] overflow-auto">
-        <div className="p-4 bg-[#18181b] border-b border-[#27272a] flex items-center justify-between">
-          <div className="flex items-center gap-2 text-sm text-[#a1a1aa]">
-            <Shield className="w-4 h-4 text-[#f5c542]" />
-            Your data is safe with us
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-[#e050b0]/10 flex items-center justify-center">
-              <span className="text-sm font-medium text-[#a78bfa]">{displayName.charAt(0).toUpperCase()}</span>
+      <main className="flex-1 bg-white min-w-0 h-screen flex flex-col overflow-hidden">
+        {/* Fixed Header: Top Bar + StepIndicator - permanently fixed at top, never moves when scrolling up or down */}
+        <div className="shrink-0 bg-white z-20">
+          <div className="h-14 px-4 sm:px-6 lg:px-8 bg-white flex items-center justify-between">
+            <div className="flex items-center gap-2 text-sm text-[#81736C]">
+              <Shield className="w-4 h-4 text-[#D97757]" />
+              Your data is safe with us
             </div>
-            <span className=" text-sm font-medium text-white">Hi, {displayName}</span>
+            <div className="flex items-center gap-3">
+              <UserDropdown onLogoutClick={() => setShowLogoutModal(true)} customName={displayName} />
+            </div>
           </div>
+          <StepIndicator
+            steps={steps}
+            currentStep={currentStep}
+            onStepClick={(step) => {
+              if (step <= 3) router.push(`/profile?step=${step}`);
+            }}
+          />
         </div>
-        <StepIndicator steps={steps} currentStep={currentStep} />
-        <div className="max-w-4xl mx-auto px-4 pb-8">
+        {/* Scrollable Main Content: Only this container scrolls, header stays permanently fixed at top */}
+        <div className="flex-1 overflow-y-auto w-full px-4 sm:px-6 lg:px-8 pb-8 pt-2">
           {/* Success Banner */}
-          <div className="bg-[#18181b] border border-[#4dacde]/30 p-6 mb-6 flex items-center gap-4">
-            <div className="w-12 h-12 bg-[#4dacde]/10 flex items-center justify-center flex-shrink-0">
-              <CheckCircle className="w-6 h-6 text-[#f5c542]" />
+          <div className="bg-white border border-[#EFE3DB] rounded-2xl p-6 mb-6 flex items-center gap-4 shadow-xs">
+            <div className="w-12 h-12 rounded-xl bg-[#DCFCE7] flex items-center justify-center flex-shrink-0">
+              <CheckCircle className="w-6 h-6 text-[#15803D]" />
             </div>
             <div>
-              <h3 className="text-lg font-medium text-white">Great! Your resume is uploaded successfully!</h3>
-              <p className=" text-sm text-[#a1a1aa]">Let&apos;s book your 15-minute AI interview. Choose a time that works best for you.</p>
+              <h3 className="text-lg font-bold text-[#382A25]">Great! Your resume is uploaded successfully!</h3>
+              <p className="text-sm text-[#81736C]">Let&apos;s book your 15-minute AI interview. Choose a time that works best for you.</p>
             </div>
           </div>
 
           {/* AI Interview Info */}
-          <div className="bg-[#e050b0]/10 p-6 mb-6 flex items-center gap-6">
-            <div className="w-12 h-12 bg-[#e050b0]/20 flex items-center justify-center flex-shrink-0">
+          <div className="bg-[#FCE8DD]/60 border border-[#D97757]/20 rounded-2xl p-6 mb-6 flex flex-col md:flex-row items-start md:items-center gap-6 shadow-xs">
+            <div className="w-12 h-12 bg-white rounded-xl shadow-xs flex items-center justify-center flex-shrink-0">
               <span className="text-2xl">✨</span>
             </div>
             <div className="flex-1">
-              <p className="text-sm font-medium text-[#a78bfa] font-mono">Just 15 minutes to open doors to endless opportunities.</p>
-              <p className="text-xs text-[#a1a1aa] mt-1 font-mono">Our AI interview is designed to understand you better and match you with roles where you can shine.</p>
+              <p className="text-sm font-bold text-[#D97757]">Just 15 minutes to open doors to endless opportunities.</p>
+              <p className="text-xs text-[#81736C] mt-1">Our AI interview is designed to understand you better and match you with roles where you can shine.</p>
             </div>
             <div className="flex gap-6">
               <div className="text-center">
-                <Clock className="w-6 h-6 text-[#a78bfa] mx-auto" />
-                <p className=" text-[10px] text-[#a1a1aa] mt-1">15 Min<br/>Interview</p>
+                <Clock className="w-6 h-6 text-[#D97757] mx-auto" />
+                <p className="text-[10px] text-[#81736C] mt-1">15 Min<br/>Interview</p>
               </div>
               <div className="text-center">
                 <span className="text-2xl">🧠</span>
-                <p className=" text-[10px] text-[#a1a1aa] mt-1">AI-Powered<br/>Assessment</p>
+                <p className="text-[10px] text-[#81736C] mt-1">AI-Powered<br/>Assessment</p>
               </div>
               <div className="text-center">
-                <Lock className="w-6 h-6 text-[#a78bfa] mx-auto" />
-                <p className=" text-[10px] text-[#a1a1aa] mt-1">Secure &<br/>Private</p>
+                <Lock className="w-6 h-6 text-[#D97757] mx-auto" />
+                <p className="text-[10px] text-[#81736C] mt-1">Secure &amp;<br/>Private</p>
               </div>
             </div>
           </div>
 
           {/* Calendar Section */}
-          <div className="bg-[#18181b] border border-[#27272a] p-6 mb-6">
+          <div className="bg-white border border-[#EFE3DB] rounded-2xl p-6 mb-6 shadow-xs">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-medium text-white">4. Select Your 15-Minute Interview Slot</h3>
-              <span className="text-xs text-[#a1a1aa] flex items-center gap-1 font-mono">
-                <Clock className="w-3 h-3" />
+              <h3 className="text-lg font-bold text-[#382A25]">4. Select Your 15-Minute Interview Slot</h3>
+              <span className="text-xs text-[#81736C] flex items-center gap-1 font-medium">
+                <Clock className="w-3.5 h-3.5 text-[#D97757]" />
                 Interview duration: 15 minutes
               </span>
             </div>
-            <p className="text-sm text-[#a1a1aa] mb-6 font-mono">All times are shown in <span className="font-medium text-[#a78bfa]">{tzLabel} ({timezone})</span></p>
+            <p className="text-sm text-[#81736C] mb-6">All times are shown in <span className="font-semibold text-[#D97757]">{tzLabel} ({timezone})</span></p>
 
             <div className="grid md:grid-cols-2 gap-8">
               {/* Calendar */}
               <div>
                 <div className="flex items-center justify-between mb-4">
-                  <h4 className="font-semibold text-white">{monthName}</h4>
-                  <div className="flex gap-2">
+                  <h4 className="font-bold text-[#382A25]">{monthName}</h4>
+                  <div className="flex gap-1">
                     <button
                       onClick={() => changeMonth(-1)}
-                      className="p-1 hover:bg-[#27272a] text-white"
+                      className="p-1.5 hover:bg-[#FCE8DD]/40 text-[#382A25] rounded-lg transition-colors cursor-pointer"
                     >
                       <ChevronLeft className="w-5 h-5" />
                     </button>
                     <button
                       onClick={() => changeMonth(1)}
-                      className="p-1 hover:bg-[#27272a] text-white"
+                      className="p-1.5 hover:bg-[#FCE8DD]/40 text-[#382A25] rounded-lg transition-colors cursor-pointer"
                     >
                       <ChevronRight className="w-5 h-5" />
                     </button>
@@ -257,7 +274,7 @@ export default function InterviewSchedulePage() {
                 </div>
                 <div className="grid grid-cols-7 gap-1">
                   {["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"].map((day) => (
-                    <div key={day} className="text-center text-xs font-medium text-[#a1a1aa] py-2">{day}</div>
+                    <div key={day} className="text-center text-xs font-semibold text-[#81736C] py-2">{day}</div>
                   ))}
                   {Array.from({ length: firstDay }).map((_, i) => (
                     <div key={`empty-${i}`} />
@@ -273,35 +290,35 @@ export default function InterviewSchedulePage() {
                         key={day}
                         onClick={() => isAvailable && setSelectedDate(day)}
                         disabled={!isAvailable}
-                        className={`relative w-full aspect-square flex items-center justify-center text-sm transition-colors ${
+                        className={`relative w-full aspect-square flex items-center justify-center text-sm rounded-xl transition-all cursor-pointer ${
                           isSelected
-                            ? "bg-[#e050b0] text-white"
+                            ? "bg-[#D97757] text-white font-bold shadow-xs"
                             : isAvailable
-                            ? "hover:bg-[#27272a] text-white"
-                            : "text-[#a1a1aa] cursor-not-allowed"
+                            ? "hover:bg-[#FCE8DD]/40 text-[#382A25] font-medium"
+                            : "text-[#81736C]/40 cursor-not-allowed"
                         }`}
                       >
                         {day}
                         {isAvailable && !isSelected && (
-                          <span className={`absolute bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 ${isLimited ? "bg-yellow-500" : "bg-[#4dacde]"}`} />
+                          <span className={`absolute bottom-1.5 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full ${isLimited ? "bg-[#B45309]" : "bg-[#D97757]"}`} />
                         )}
                       </button>
                     );
                   })}
                 </div>
-                <div className="flex items-center gap-4 mt-4 text-xs text-[#a1a1aa] font-mono">
-                  <span className="flex items-center gap-1"><span className="w-2 h-2 bg-[#4dacde]" /> Available</span>
-                  <span className="flex items-center gap-1"><span className="w-2 h-2 bg-yellow-500" /> Limited Slots</span>
-                  <span className="flex items-center gap-1"><span className="w-2 h-2 bg-[#2a2a2a]" /> Unavailable</span>
+                <div className="flex items-center gap-4 mt-4 text-xs text-[#81736C]">
+                  <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-[#D97757]" /> Available</span>
+                  <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-[#B45309]" /> Limited Slots</span>
+                  <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-[#EFE3DB]" /> Unavailable</span>
                 </div>
               </div>
 
               {/* Time Slots */}
               <div>
-                <h4 className="font-semibold text-white mb-4 font-mono uppercase tracking-wider">{selectedDateLabel}</h4>
+                <h4 className="font-bold text-[#382A25] mb-4 uppercase tracking-wider text-xs">{selectedDateLabel}</h4>
                 <div className="space-y-6">
                   <div>
-                    <p className="text-sm font-medium text-[#a1a1aa] mb-3">Morning</p>
+                    <p className="text-xs font-bold text-[#81736C] uppercase tracking-wider mb-3">Morning</p>
                     <div className="grid grid-cols-3 gap-2">
                       {timeSlots.morning.map((time) => (
                         <button
@@ -315,7 +332,7 @@ export default function InterviewSchedulePage() {
                     </div>
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-[#a1a1aa] mb-3">Afternoon</p>
+                    <p className="text-xs font-bold text-[#81736C] uppercase tracking-wider mb-3">Afternoon</p>
                     <div className="grid grid-cols-3 gap-2">
                       {timeSlots.afternoon.map((time) => (
                         <button
@@ -329,7 +346,7 @@ export default function InterviewSchedulePage() {
                     </div>
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-[#a1a1aa] mb-3">Evening</p>
+                    <p className="text-xs font-bold text-[#81736C] uppercase tracking-wider mb-3">Evening</p>
                     <div className="grid grid-cols-3 gap-2">
                       {timeSlots.evening.map((time) => (
                         <button
@@ -348,50 +365,50 @@ export default function InterviewSchedulePage() {
           </div>
 
           {/* Selected Time Confirmation */}
-          <div className="bg-[#18181b] border border-[#27272a] p-4 mb-6 flex items-center justify-between">
+          <div className="bg-white border border-[#EFE3DB] rounded-2xl p-4 sm:p-5 mb-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-xs">
             <div className="flex items-center gap-4">
-              <div className="w-10 h-10 bg-[#4dacde]/10 flex items-center justify-center">
-                <CheckCircle className="w-5 h-5 text-[#f5c542]" />
+              <div className="w-10 h-10 rounded-xl bg-[#DCFCE7] flex items-center justify-center flex-shrink-0">
+                <CheckCircle className="w-5 h-5 text-[#15803D]" />
               </div>
               <div>
-                <p className=" text-sm font-medium text-white">You&apos;ve selected</p>
-                <p className=" text-sm text-[#a1a1aa]">{selectedDateShort}</p>
-                <p className=" text-sm text-[#a1a1aa]">{selectedTime} ({tzLabel})</p>
+                <p className="text-sm font-bold text-[#382A25]">You&apos;ve selected</p>
+                <p className="text-sm text-[#81736C]">{selectedDateShort}</p>
+                <p className="text-sm font-semibold text-[#D97757]">{selectedTime} ({tzLabel})</p>
               </div>
             </div>
-            <div className="flex items-center gap-6 text-xs text-[#a1a1aa] font-mono">
-              <span className="flex items-center gap-1"><Calendar className="w-4 h-4" /> You will receive a reminder before your interview</span>
-              <span className="flex items-center gap-1"><Clock className="w-4 h-4" /> Reschedule or change time anytime</span>
-              <span className="flex items-center gap-1"><Shield className="w-4 h-4" /> Smooth, secure and distraction-free experience</span>
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 text-xs text-[#81736C]">
+              <span className="flex items-center gap-1.5"><Calendar className="w-4 h-4 text-[#D97757]" /> Reminder before interview</span>
+              <span className="flex items-center gap-1.5"><Clock className="w-4 h-4 text-[#D97757]" /> Reschedule anytime</span>
+              <span className="flex items-center gap-1.5"><Shield className="w-4 h-4 text-[#15803D]" /> Secure &amp; distraction-free</span>
             </div>
           </div>
 
           {/* All Set Banner */}
-          <div className="bg-[#18181b] border border-[#4dacde]/30 p-6 mb-6 flex items-center gap-4">
+          <div className="bg-[#FCE8DD]/40 border border-[#D97757]/20 rounded-2xl p-6 mb-6 flex items-center gap-4 shadow-xs">
             <span className="text-4xl">🎉</span>
             <div className="flex-1">
-              <h4 className="font-semibold text-white">All Set! You&apos;re Good to Go!</h4>
-              <p className=" text-sm text-[#a1a1aa]">We&apos;re looking forward to your interview. Get ready to showcase your <strong>best</strong> self.</p>
+              <h4 className="font-bold text-[#382A25]">All Set! You&apos;re Good to Go!</h4>
+              <p className="text-sm text-[#81736C]">We&apos;re looking forward to your interview. Get ready to showcase your <strong>best</strong> self.</p>
             </div>
-            <div className="w-12 h-12 bg-[#4dacde] flex items-center justify-center">
+            <div className="w-12 h-12 bg-[#D97757] rounded-xl flex items-center justify-center text-white shadow-xs">
               <CheckCircle className="w-6 h-6 text-white" />
             </div>
           </div>
 
           {/* Navigation */}
-          <div className="flex justify-between">
+          <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3">
             <button
               onClick={() => router.push("/profile")}
-              className="rounded-lg flex items-center gap-2 px-6 py-3 border border-[#27272a] text-white text-sm font-medium hover:bg-[#27272a]"
+              className="rounded-xl flex items-center justify-center gap-2 px-5 sm:px-6 py-2.5 sm:py-3 border border-[#EFE3DB] bg-white text-[#382A25] text-sm font-semibold hover:bg-[#FCE8DD]/30 transition-colors shadow-xs cursor-pointer w-full sm:w-auto order-2 sm:order-1"
             >
               <ArrowLeft className="w-4 h-4" />
               Back
             </button>
-            <div className="flex gap-3">
+            <div className="flex flex-col sm:flex-row gap-2.5 sm:gap-3 w-full sm:w-auto order-1 sm:order-2">
               <button
                 onClick={handleStartLive}
                 disabled={saving || selectedDate === null}
-                className="rounded-lg flex items-center gap-2 px-6 py-3 bg-[#f5c542] text-black text-sm font-medium hover:bg-[#f5c542]/80 transition-colors disabled:opacity-50"
+                className="rounded-xl flex items-center justify-center gap-2 px-5 sm:px-6 py-2.5 sm:py-3 bg-[#FCE8DD] border border-[#D97757]/30 text-[#D97757] hover:bg-[#D97757] hover:text-white text-sm font-bold transition-all shadow-xs disabled:opacity-50 cursor-pointer w-full sm:w-auto"
               >
                 {saving ? (
                   <>Saving...</>
@@ -402,23 +419,31 @@ export default function InterviewSchedulePage() {
               <button
                 onClick={handleConfirm}
                 disabled={saving || selectedDate === null}
-                className="rounded-lg flex items-center gap-2 px-6 py-3 bg-[#a78bfa] text-white text-sm font-medium hover:bg-[#8b5cf6] transition-colors disabled:opacity-50"
+                className="rounded-xl flex items-center justify-center gap-2 px-5 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-[#D97757] to-[#B95F42] hover:from-[#B95F42] hover:to-[#a04e33] text-white text-sm font-bold transition-all shadow-md shadow-[#D97757]/25 disabled:opacity-50 cursor-pointer w-full sm:w-auto"
               >
                 {saving ? "Saving..." : "Confirm & Continue"}
                 <ArrowRight className="w-4 h-4" />
               </button>
             </div>
             {saveError && (
-              <div className="mt-3 bg-red-500/10 border border-red-500/30 text-red-400 text-sm rounded-lg p-3 text-center">
+              <div className="mt-3 bg-red-50 border border-red-200 text-[#B91C1C] text-sm rounded-xl p-3 text-center w-full">
                 {saveError}
               </div>
             )}
           </div>
-          <p className="text-center text-xs text-[#a1a1aa] mt-4 flex items-center justify-center gap-1 font-mono">
-            <Lock className="w-3 h-3" />
+          <p className="text-center text-xs text-[#81736C] mt-5 flex items-center justify-center gap-1.5 font-medium">
+            <Lock className="w-3.5 h-3.5 text-[#D97757]" />
             Your information is encrypted and secure
           </p>
         </div>
+        <LogoutConfirmModal
+          isOpen={showLogoutModal}
+          onClose={() => setShowLogoutModal(false)}
+          onConfirm={() => {
+            setShowLogoutModal(false);
+            logout();
+          }}
+        />
       </main>
     </div>
   );

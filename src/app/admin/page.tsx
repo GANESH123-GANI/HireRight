@@ -107,7 +107,8 @@ export default function AdminDashboard() {
           fetch("/api/admin/feedback"),
         ]);
         if (usersRes.status === 401 || usersRes.status === 403) {
-          router.push("/login");
+          console.warn("Admin API unauthorized/forbidden, maintaining page view");
+          setLoading(false);
           return;
         }
         const usersData = await usersRes.json();

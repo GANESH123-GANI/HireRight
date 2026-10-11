@@ -1,12 +1,7 @@
 import { NextResponse } from "next/server";
 import { getActiveUser } from "@/lib/authorization";
-import OpenAI from "openai";
-import { trackedChatCompletion } from "@/lib/openai-usage";
+import { generateGeminiContent } from "@/lib/gemini";
 import { rateLimit, rateLimitByIp } from "@/lib/rateLimit";
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
 
 export async function POST(request: Request) {
   try {
@@ -70,35 +65,18 @@ Current conversation context will be provided in the user message.
 IMPORTANT: You are an assistant for the HireRight platform. Do not discuss topics outside of helping users with this website's features, interview process, profile building, or platform navigation.
 `;
 
-    const completion = await trackedChatCompletion(
-      () => openai.chat.completions.create({
-        model: "gpt-3.5-turbo",
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: message },
-        ],
-        temperature: 0.7,
-        max_tokens: 500,
-      }),
-      {
-        model: "gpt-3.5-turbo",
-        endpoint: "chat",
-        userId: user.id,
-        organizationId: user.organizationId,
-      }
-    );
+    const response = await generateGeminiContent({
+      contents: message,
+      systemInstruction: systemPrompt,
+      temperature: 0.7,
+      maxOutputTokens: 500,
+    });
 
-    const response = completion.choices[0]?.message?.content || "I'm sorry, I don't have a response for that.";
-
-    return NextResponse.json({ response });
+    return NextResponse.json({
+      response: response || "I'm sorry, I don't have a response for that."
+    });
   } catch (error) {
     console.error("Chat API error:", error);
-    if (error instanceof OpenAI.APIError) {
-      return NextResponse.json(
-        { error: "AI service temporarily unavailable. Please try again." },
-        { status: 503 }
-      );
-    }
     return NextResponse.json(
       { error: "Something went wrong. Please try again." },
       { status: 500 }

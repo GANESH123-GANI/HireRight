@@ -2,8 +2,9 @@ import OpenAI from "openai";
 import { prisma } from "./prisma";
 import { trackedEmbedding } from "./openai-usage";
 import { rerankDocuments } from "./rerank";
+import { isGeminiConfigured, generateGeminiEmbedding } from "./gemini";
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY || "optional_key" });
 
 const EMBEDDING_MODEL = "text-embedding-3-small";
 const EMBEDDING_DIMENSIONS = 1536;
@@ -12,38 +13,62 @@ export async function generateEmbedding(text: string): Promise<number[]> {
   const cleaned = text.replace(/\n/g, " ").trim();
   if (!cleaned) return new Array(EMBEDDING_DIMENSIONS).fill(0);
 
-  const response = await trackedEmbedding(
-    () => openai.embeddings.create({
-      model: EMBEDDING_MODEL,
-      input: cleaned,
-      dimensions: EMBEDDING_DIMENSIONS,
-    }),
-    {
-      model: EMBEDDING_MODEL,
-      endpoint: "embeddings/single",
+  if (isGeminiConfigured()) {
+    let emb = await generateGeminiEmbedding(cleaned);
+    if (emb.length < EMBEDDING_DIMENSIONS) {
+      emb = emb.concat(new Array(EMBEDDING_DIMENSIONS - emb.length).fill(0));
     }
-  );
+    return emb.slice(0, EMBEDDING_DIMENSIONS);
+  }
 
-  return response.data[0].embedding;
+  if (process.env.OPENAI_API_KEY) {
+    const response = await trackedEmbedding(
+      () => openai.embeddings.create({
+        model: EMBEDDING_MODEL,
+        input: cleaned,
+        dimensions: EMBEDDING_DIMENSIONS,
+      }),
+      {
+        model: EMBEDDING_MODEL,
+        endpoint: "embeddings/single",
+      }
+    );
+    return response.data[0].embedding;
+  }
+
+  return new Array(EMBEDDING_DIMENSIONS).fill(0);
 }
 
 export async function generateEmbeddings(texts: string[]): Promise<number[][]> {
   const cleaned = texts.map((t) => t.replace(/\n/g, " ").trim());
-  const response = await trackedEmbedding(
-    () => openai.embeddings.create({
-      model: EMBEDDING_MODEL,
-      input: cleaned,
-      dimensions: EMBEDDING_DIMENSIONS,
-    }),
-    {
-      model: EMBEDDING_MODEL,
-      endpoint: "embeddings/batch",
-    }
-  );
 
-  return response.data
-    .sort((a, b) => a.index - b.index)
-    .map((d) => d.embedding);
+  if (isGeminiConfigured()) {
+    const results: number[][] = [];
+    for (const text of cleaned) {
+      results.push(await generateEmbedding(text));
+    }
+    return results;
+  }
+
+  if (process.env.OPENAI_API_KEY) {
+    const response = await trackedEmbedding(
+      () => openai.embeddings.create({
+        model: EMBEDDING_MODEL,
+        input: cleaned,
+        dimensions: EMBEDDING_DIMENSIONS,
+      }),
+      {
+        model: EMBEDDING_MODEL,
+        endpoint: "embeddings/batch",
+      }
+    );
+
+    return response.data
+      .sort((a, b) => a.index - b.index)
+      .map((d) => d.embedding);
+  }
+
+  return cleaned.map(() => new Array(EMBEDDING_DIMENSIONS).fill(0));
 }
 
 export async function storeProfileEmbedding(userId: string, embedding: number[]): Promise<void> {

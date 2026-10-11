@@ -7,13 +7,9 @@ import {
   generateReminderEmail,
   generateInterviewConfirmationEmail,
 } from "@/lib/email";
-import OpenAI from "openai";
+import { geminiChatCompletion } from "@/lib/gemini";
 import { trackedChatCompletion } from "@/lib/openai-usage";
 import { to24HourTime, formatTimeLabel } from "@/lib/time";
-
-function getOpenAI() {
-  return new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-}
 
 function getInterviewDateTime(date: string, time: string): Date {
   let interviewDate: Date;
@@ -357,19 +353,18 @@ export const evaluateInterview = inngest.createFunction(
       Format as JSON with keys: score, strengths, weaknesses, areasForImprovement, topicsToLearn, recommendation, integrity, questionScores.`;
     });
 
-    const completion = await step.run("call-openai", async () => {
+    const completion = await step.run("call-gemini", async () => {
       return trackedChatCompletion(
-        () => getOpenAI().chat.completions.create({
-          model: "gpt-5-nano",
+        () => geminiChatCompletion({
           messages: [
             { role: "system", content: "You are an interview evaluator. Provide structured feedback. Always return valid JSON." },
             { role: "user", content: evaluationPrompt },
           ],
           max_completion_tokens: 2000,
-          reasoning_effort: "low",
+          response_format: { type: "json_object" },
         }),
         {
-          model: "gpt-5-nano",
+          model: "gemini-3.8-flash",
           endpoint: "ai-interview/evaluate-background",
           userId: interview?.user?.id,
           organizationId: interview?.user?.organizationId,

@@ -43,6 +43,7 @@ describe("isPlanActive", () => {
     expect(isPlanActive("pro", "trialing")).toBe(true);
     expect(isPlanActive("pro", "past_due")).toBe(true);
     expect(isPlanActive("pro", null)).toBe(false);
+    expect(isPlanActive("enterprise", null)).toBe(true);
     expect(isPlanActive("enterprise", "canceled")).toBe(false);
     expect(isPlanActive("enterprise", "unpaid")).toBe(false);
   });

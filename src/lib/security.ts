@@ -3,30 +3,25 @@
  * Used for signup, login, and form validation.
  */
 
-import { z } from "zod";
-
 // --- Email Validation ---
 
-const emailSchema = z.string()
-  .min(1, "Email is required")
-  .email("Please enter a valid email address");
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export function isValidEmail(email: string): boolean {
-  return emailSchema.safeParse(email).success;
+  if (!email || typeof email !== "string") return false;
+  return EMAIL_REGEX.test(email.trim());
 }
 
 // --- Password Validation ---
 
-const passwordSchema = z.string()
-  .min(12, "Password must be at least 12 characters long")
-  .max(128, "Password must be less than 128 characters")
-  .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
-  .regex(/[a-z]/, "Password must contain at least one lowercase letter")
-  .regex(/[0-9]/, "Password must contain at least one number")
-  .regex(/[^A-Za-z0-9]/, "Password must contain at least one special character");
-
 export function isValidPassword(password: string): boolean {
-  return passwordSchema.safeParse(password).success;
+  if (!password || typeof password !== "string") return false;
+  if (password.length < 12 || password.length > 128) return false;
+  if (!/[A-Z]/.test(password)) return false;
+  if (!/[a-z]/.test(password)) return false;
+  if (!/[0-9]/.test(password)) return false;
+  if (!/[^A-Za-z0-9]/.test(password)) return false;
+  return true;
 }
 
 // --- String Sanitization ---

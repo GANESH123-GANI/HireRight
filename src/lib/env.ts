@@ -4,6 +4,7 @@ const requiredEnvVars = [
 ] as const;
 
 const optionalEnvVars = [
+  "GEMINI_API_KEY",
   "OPENAI_API_KEY",
   "CORS_ALLOWED_ORIGINS",
   "LIVEKIT_URL",
