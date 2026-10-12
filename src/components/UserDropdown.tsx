@@ -87,19 +87,19 @@ export default function UserDropdown({ onLogoutClick, customName }: UserDropdown
       <button
         type="button"
         onClick={() => setIsOpen((prev) => !prev)}
-        className="flex items-center gap-2.5 px-3 py-1.5 rounded-full bg-[#FFF9F5] hover:bg-[#FCE8DD]/60 border border-[#EFE3DB] hover:border-[#D97757]/40 transition-all duration-200 cursor-pointer shadow-2xs group"
+        className="flex items-center gap-2.5 px-3 py-1.5 rounded-full bg-white hover:bg-slate-50 border border-slate-200 hover:border-slate-300 transition-all duration-200 cursor-pointer shadow-xs group"
         aria-expanded={isOpen}
         aria-haspopup="true"
         title="Open account menu"
       >
-        <div className="w-8 h-8 rounded-full bg-[#FCE8DD] border border-[#D97757]/30 flex items-center justify-center text-[#D97757] font-bold text-sm shrink-0 group-hover:scale-105 transition-transform">
+        <div className="w-8 h-8 rounded-full bg-orange-50 border border-[#D97757]/30 flex items-center justify-center text-[#D97757] font-bold text-sm shrink-0 group-hover:scale-105 transition-transform">
           {initial}
         </div>
-        <span className="text-xs sm:text-sm font-semibold text-[#382A25] group-hover:text-[#D97757] transition-colors truncate max-w-[95px] xs:max-w-[130px] sm:max-w-[180px]">
+        <span className="text-xs sm:text-sm font-semibold text-slate-800 group-hover:text-[#D97757] transition-colors truncate max-w-[95px] xs:max-w-[130px] sm:max-w-[180px]">
           Hi, {displayName}
         </span>
         <ChevronDown
-          className={`w-4 h-4 text-[#81736C] group-hover:text-[#D97757] transition-transform duration-200 shrink-0 ${
+          className={`w-4 h-4 text-slate-400 group-hover:text-[#D97757] transition-transform duration-200 shrink-0 ${
             isOpen ? "rotate-180 text-[#D97757]" : ""
           }`}
         />
@@ -108,22 +108,22 @@ export default function UserDropdown({ onLogoutClick, customName }: UserDropdown
       {/* Dropdown Menu Panel */}
       {isOpen && (
         <div
-          className="absolute right-0 top-full mt-2 w-72 max-w-[calc(100vw-1.5rem)] bg-white rounded-2xl shadow-xl border border-[#EFE3DB] py-2 z-50 animate-in fade-in zoom-in-95 origin-top-right overflow-hidden"
+          className="absolute right-0 top-full mt-2 w-72 max-w-[calc(100vw-1.5rem)] bg-white rounded-2xl shadow-xl border border-slate-200/90 py-2 z-50 animate-in fade-in zoom-in-95 origin-top-right overflow-hidden"
           role="menu"
         >
           {/* Header Info */}
-          <div className="px-4 py-3 bg-[#FFF9F5] border-b border-[#EFE3DB]">
+          <div className="px-4 py-3 bg-slate-50/70 border-b border-slate-100">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-[#FCE8DD] border border-[#D97757]/30 flex items-center justify-center text-[#D97757] font-bold text-base shrink-0">
+              <div className="w-10 h-10 rounded-full bg-orange-50 border border-[#D97757]/30 flex items-center justify-center text-[#D97757] font-bold text-base shrink-0">
                 {initial}
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-bold text-[#382A25] truncate">{displayName}</p>
-                <p className="text-xs text-[#81736C] truncate">{displayEmail}</p>
+                <p className="text-sm font-bold text-slate-900 truncate">{displayName}</p>
+                <p className="text-xs text-slate-500 truncate">{displayEmail}</p>
               </div>
             </div>
             <div className="mt-2.5 flex items-center gap-1.5">
-              <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#FCE8DD] text-[#D97757] border border-[#D97757]/20">
+              <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-orange-50 text-[#D97757] border border-[#D97757]/20">
                 <ShieldCheck className="w-3 h-3 text-[#D97757]" />
                 {user?.role === "admin" ? "Admin" : "Verified Candidate"}
               </span>
@@ -136,15 +136,15 @@ export default function UserDropdown({ onLogoutClick, customName }: UserDropdown
             <button
               type="button"
               onClick={handleViewResult}
-              className="w-full flex items-center gap-3 px-4 py-2.5 text-left text-sm font-semibold text-[#382A25] hover:bg-[#FCE8DD]/40 hover:text-[#D97757] transition-colors cursor-pointer group"
+              className="w-full flex items-center gap-3 px-4 py-2.5 text-left text-sm font-semibold text-slate-800 hover:bg-slate-50 hover:text-[#D97757] transition-colors cursor-pointer group"
               role="menuitem"
             >
-              <div className="w-8 h-8 rounded-lg bg-[#FCE8DD]/60 group-hover:bg-[#FCE8DD] flex items-center justify-center text-[#D97757] shrink-0 border border-[#D97757]/20 transition-colors">
+              <div className="w-8 h-8 rounded-lg bg-orange-50 group-hover:bg-orange-100/80 flex items-center justify-center text-[#D97757] shrink-0 border border-orange-200/50 transition-colors">
                 <BarChart3 className="w-4 h-4" />
               </div>
               <div className="flex-1 min-w-0">
                 <span className="block font-semibold">View Result</span>
-                <span className="block text-[11px] text-[#81736C] font-normal">Scorecard & AI evaluation</span>
+                <span className="block text-[11px] text-slate-500 font-normal">Scorecard & AI evaluation</span>
               </div>
             </button>
 
@@ -152,21 +152,21 @@ export default function UserDropdown({ onLogoutClick, customName }: UserDropdown
             <Link
               href="/profile"
               onClick={() => setIsOpen(false)}
-              className="flex items-center gap-3 px-4 py-2.5 text-sm font-semibold text-[#382A25] hover:bg-[#FCE8DD]/40 hover:text-[#D97757] transition-colors group"
+              className="flex items-center gap-3 px-4 py-2.5 text-sm font-semibold text-slate-800 hover:bg-slate-50 hover:text-[#D97757] transition-colors group"
               role="menuitem"
             >
-              <div className="w-8 h-8 rounded-lg bg-[#FCE8DD]/60 group-hover:bg-[#FCE8DD] flex items-center justify-center text-[#D97757] shrink-0 border border-[#D97757]/20 transition-colors">
+              <div className="w-8 h-8 rounded-lg bg-orange-50 group-hover:bg-orange-100/80 flex items-center justify-center text-[#D97757] shrink-0 border border-orange-200/50 transition-colors">
                 <UserIcon className="w-4 h-4" />
               </div>
               <div className="flex-1 min-w-0">
                 <span className="block font-semibold">My Profile</span>
-                <span className="block text-[11px] text-[#81736C] font-normal">Resume, skills & details</span>
+                <span className="block text-[11px] text-slate-500 font-normal">Resume, skills & details</span>
               </div>
             </Link>
           </div>
 
           {/* Divider */}
-          <div className="my-1 border-t border-[#EFE3DB]" />
+          <div className="my-1 border-t border-slate-100" />
 
           {/* Logout */}
           <div className="px-2 pt-1">
@@ -176,7 +176,7 @@ export default function UserDropdown({ onLogoutClick, customName }: UserDropdown
                 setIsOpen(false);
                 onLogoutClick();
               }}
-              className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-left text-sm font-semibold text-[#81736C] hover:text-[#B91C1C] hover:bg-red-50 transition-colors cursor-pointer"
+              className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-left text-sm font-semibold text-slate-600 hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
               role="menuitem"
             >
               <LogOut className="w-4 h-4" />
