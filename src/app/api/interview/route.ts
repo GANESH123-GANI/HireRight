@@ -16,28 +16,29 @@ export async function GET(request: Request) {
 
     const interview = await prisma.interview.findUnique({
       where: { userId: user.userId },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            role: true,
+            profile: true,
+          },
+        },
+      },
     });
 
     if (!interview) {
       return NextResponse.json({ error: "Interview not found" }, { status: 404 });
     }
 
-    // For job seekers: hide evaluation details unless results are unlocked
-    const userData = await prisma.user.findUnique({
-      where: { id: user.userId },
-      select: { role: true },
+    return NextResponse.json({
+      success: true,
+      interview,
+      user: interview.user,
+      profile: interview.user?.profile,
     });
-    const isJobSeeker = userData?.role === "jobseeker";
-    const responseInterview = isJobSeeker && !interview.resultsUnlocked
-      ? {
-          ...interview,
-          evaluation: null,
-          evaluationScore: null,
-          resultsLocked: true,
-        }
-      : { ...interview, resultsLocked: false };
-
-    return NextResponse.json({ success: true, interview: responseInterview });
   } catch (error) {
     console.error("Get interview error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
